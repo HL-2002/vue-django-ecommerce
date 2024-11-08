@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import TheWelcome from '../components/TheWelcome.vue'
 </script>
 
 <template>
   <main>
-    <TheWelcome />
+    <h1 class="text-center text-6xl">chismoso el que lo lea</h1>
+
   </main>
 </template>
