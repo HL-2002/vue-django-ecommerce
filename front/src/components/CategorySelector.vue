@@ -84,13 +84,16 @@ const filteredList = computed(() => {
 
     </TransitionGroup>
 
-    <div class="options" v-if="filteredList.length > 0">
-      <TransitionGroup name="list" tag="ul">
-        <li @click="CreateTagByText(element)" v-for="element in filteredList" :key="element">
-          <button class="capitalize">{{ element }}</button>
-        </li>
-      </TransitionGroup>
-    </div>
+    <Transition name="options">
+      <div class="options" v-if="filteredList.length > 0">
+        <TransitionGroup name="list" tag="ul">
+          <li @click="CreateTagByText(element)" v-for="element in filteredList" :key="element">
+            <button class="capitalize">{{ element }}</button>
+          </li>
+        </TransitionGroup>
+      </div>
+    </Transition>
+
   </label>
 
 
@@ -124,6 +127,19 @@ const filteredList = computed(() => {
 <style>
 * {
   box-sizing: border-box;
+}
+
+
+.options-enter-active,
+.options-leave-active {
+  transition: all 0.4s ease;
+  max-height: 250px
+}
+
+.options-enter-from,
+.options-leave-to {
+  max-height: 0;
+  overflow: hidden;
 }
 
 .list-move,
