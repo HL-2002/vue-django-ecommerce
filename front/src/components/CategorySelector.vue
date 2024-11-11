@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, defineModel } from 'vue';
 
 const inputVal = ref('')
 const inputRef = ref<HTMLInputElement | null>(null)
-const inputVals = ref<string[]>([])
+//const inputVals = ref<string[]>([])
 const whiteList = ref(["javascript", "dragon ball", "html"])
 const dialogRef = ref<HTMLDialogElement | null>(null)
 
-
+const inputVals = defineModel<string[]>({
+  required: true
+})
 
 function onKey(event: KeyboardEvent) {
   if (event.key == "Enter" && inputVal.value?.trim() !== "") {
