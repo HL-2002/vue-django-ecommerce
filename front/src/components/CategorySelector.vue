@@ -190,7 +190,8 @@ const filteredList = computed(() => {
         font-size: inherit;
         transition: transform 100ms;
 
-        &:focus-visible {
+        &:focus-visible,
+        &:hover {
           background-color: #bbb;
           outline: none;
           transform: scale(1.1);
@@ -224,6 +225,14 @@ input {
     background-color: lightskyblue;
     padding: 2px 4px;
     border-radius: 2px;
+
+    transition: all 0.100s ease;
+
+    &:hover {
+      background-color: lightblue;
+      transform: scale(1.1);
+    }
+
   }
 
 
