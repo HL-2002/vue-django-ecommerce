@@ -1,9 +1,26 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 
+const props = defineProps({
+  labelName: {
+    type: String,
+    required: true
+  },
+  creationName: {
+    type: String,
+    required: true
+  },
+  defaultWhitelist: {
+    type: Array as () => string[],
+    required: true
+  }
+
+})
+
+
 const textInput = ref('')
 const inputRef = ref<HTMLInputElement | null>(null)
-const whiteList = ref(["electrodomesticos", "computadoras", "cocina"])
+const whiteList = ref<string[]>(props.defaultWhitelist)
 const dialogRef = ref<HTMLDialogElement | null>(null)
 
 const seletedCategories = defineModel<string[]>({
@@ -72,7 +89,8 @@ const filteredList = computed(() => {
 <template>
 
   <div class="categoriContainer">
-  <input autocomplete="false" ref="inputRef" id="tags-input" autofocus @keydown="onKey" v-model="textInput" />
+    <h3 class="font-bold text-xl mb-4">{{ props.labelName }}</h3>
+  <input autocomplete="false" ref="inputRef" :id="props.labelName" autofocus @keydown="onKey" v-model="textInput" />
   <label @click="inputRef?.focus()" class="tags" for="tags-input">
 
     <TransitionGroup name="list">
@@ -100,7 +118,7 @@ const filteredList = computed(() => {
 
   <dialog ref="dialogRef" class="p-2  focus-visible:outline-none">
     <div class="flex flex-col gap-4 p-6 ">
-      <h3 class="text-center">Quieres agregar la siguiente categoria: <br /><span
+      <h3 class="text-center">Quieres agregar la siguiente {{ props.creationName }}: <br /><span
           class="text-xl font-bold capitalize">{{ textInput
           }}</span></h3>
       <div class="flex gap-4">
@@ -125,7 +143,7 @@ const filteredList = computed(() => {
 </template>
 
 
-<style>
+<style scoped>
 * {
   box-sizing: border-box;
 }
