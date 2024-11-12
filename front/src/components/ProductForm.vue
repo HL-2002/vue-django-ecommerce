@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import CategorySelector from "./CategorySelector.vue"
 import InputFile from './inputFile.vue';
 
@@ -9,12 +9,14 @@ const selectedTags = ref<string[]>([])
 const seletedMiniature = ref<string>('https://placehold.co/150/webp')
 const maxFilesError = ref(false)
 
+// null is the default value or date
+const shippingDate = ref()
 
 function updateMiniature(image: string) {
   seletedMiniature.value = image
 }
 
-function errorMaxFiles(){
+function errorMaxFiles() {
   maxFilesError.value = true
   setTimeout(() => {
     maxFilesError.value = false
@@ -22,57 +24,99 @@ function errorMaxFiles(){
 }
 
 
+const intlFormatDateShort = new Intl.RelativeTimeFormat('es', { numeric: 'auto' })
+
+function formatTime(date: Date) {
+  const currentDate = new Date()
+  const shipping = new Date(date)
+  const diff = shipping.getTime() - currentDate.getTime()
+  const moths = Math.floor(diff / (1000 * 60 * 60 * 24 * 30))
+  if (moths > 0) return intlFormatDateShort.format(moths, 'month')
+  const weeks = Math.floor(diff / (1000 * 60 * 60 * 24 * 7))
+  if (weeks > 0) return intlFormatDateShort.format(weeks, 'week')
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  if (days > 0) return intlFormatDateShort.format(days, 'day')
+  const hours = Math.floor(diff / (1000 * 60 * 60))
+  if (hours > 0) return intlFormatDateShort.format(hours, 'hour')
+}
+
+const shippingFormated = computed(() => {
+  if (!shippingDate.value) return ''
+  return formatTime(shippingDate.value)
+})
+
+
+let tomorrow: Date | string = new Date()
+tomorrow.setDate(tomorrow.getDate() + 1)
+tomorrow = new Date(tomorrow.toISOString().split('T')[0]).toISOString().split('T')[0]
+
 </script>
 
-
 <template>
-  <form class="w-1/2 m-auto flex flex-col gap-4">
-    <h1>Producto Formulario</h1>
+  <form class="w-1/2 m-auto flex flex-col gap-4
+    bg-neutral-100 p-6 rounded-lg shadow-md mb-4
+
+  ">
+
+
+
+    <h1 class="text-2xl font-bold text-center">Crea un producto</h1>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Titulo
-      <input type="text" name="title" class="text-sm font-normal p-2 border border-neutral-500 rounded  focus:outline-none focus:border-neutral-800" />
+      <input type="text" name="title"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded  focus:outline-none focus:border-neutral-800" />
     </label>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Descripcion
-      <textarea name="description" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800"></textarea>
+      <textarea name="description"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800"></textarea>
     </label>
 
-    <CategorySelector v-model="selectedCategory" label-name="Categorias" creation-name="categoria" :default-whitelist="['cocina','electrodomesticos']" />
-   <label class="flex flex-col gap-2 text-xl font-bold">
+    <CategorySelector v-model="selectedCategory" label-name="Categorias" creation-name="categoria"
+      :default-whitelist="['cocina', 'electrodomesticos']" />
+    <label class="flex flex-col gap-2 text-xl font-bold">
       Precio
-      <input step="0.01" type="number" name="price" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
+      <input step="0.01" type="number" name="price"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Porcentaje de descuento
-      <input step=".01" ype="number" name="discount" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
+      <input step=".01" ype="number" name="discount"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Rating
-      <input disabled value="5" step=".01" type="number" name="rating" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800 disabled:opacity-50" />
+      <input disabled value="5" step=".01" type="number" name="rating"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800 disabled:opacity-50" />
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Stock
-      <input type="number" name="stock" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
+      <input type="number" name="stock"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
-   <CategorySelector v-model="selectedTags" label-name="Tags" creation-name="Tag"  :default-whitelist="['']"/>
+    <CategorySelector v-model="selectedTags" label-name="Tags" creation-name="Tag"
+      :default-whitelist="['vegetariano', 'down']" />
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Marca
-      <input type="text" name="brand" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
+      <input type="text" name="brand"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       SKU
-      <input type="text" name="sku" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
+      <input type="text" name="sku"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Peso
-      <input type="number" name="weight" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
+      <input type="number" name="weight"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
@@ -80,50 +124,65 @@ function errorMaxFiles(){
       <div class="flex gap-2">
         <div class="flex flex-col">
           <span>Ancho</span>
-          <input type="number" name="width" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
+          <input type="number" name="width"
+            class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
         </div>
         <div class="flex flex-col">
           <span>Alto</span>
-          <input type="number" name="height" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
+          <input type="number" name="height"
+            class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
         </div>
         <div class="flex flex-col">
           <span>Profundidad</span>
-          <input type="number" name="depth" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
+          <input type="number" name="depth"
+            class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
         </div>
       </div>
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Informacion de garantia
-      <textarea name="warranty" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800"></textarea>
+      <textarea name="warranty"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800"></textarea>
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Informacion de envio
-      <textarea name="shipping" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800"></textarea>
+      <input name="shipping"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800"
+        type="date" v-model="shippingDate" :min="tomorrow" />
+
+
+
+      <span v-if="shippingFormated">
+        Se envia {{ shippingFormated }}
+      </span>
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Estado de disponibilidad
-      <select name="availability" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800">
-        <option value="available">Disponible</option>
-        <option value="unavailable">No disponible</option>
+      <select name="availability"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800">
+        <option value="inStock">en existencia</option>
+        <option value="lowStock">Baja cantidad</option>
       </select>
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Politica de devolucion
-      <textarea name="return" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800"></textarea>
+      <textarea name="return"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800"></textarea>
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Cantidad minima de orden
-      <input type="number" name="minOrder" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
+      <input type="number" name="minOrder"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
-  <InputFile @change-miniature="updateMiniature"  @error-max-files="errorMaxFiles" />
+    <InputFile @change-miniature="updateMiniature" @error-max-files="errorMaxFiles" />
 
-  <label v-if="maxFilesError" class="text-red-500
+    <label v-if="maxFilesError" class="text-red-500
 text-sm font-bold
 
   ">Maximo de 3 imagenes</label>
@@ -135,17 +194,11 @@ text-sm font-bold
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Codigo de barras
-      <input type="text" name="barcode" class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
+      <input type="text" name="barcode"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
-
-    <label class="flex flex-col gap-2 text-xl font-bold">
-      <button type="button" class="bg-primary
--500  p-2 rounded">Agregar Review</button>
-    </label>
-
-
-    <button type="submit" class="bg-primary-500 p-2 rounded">Guardar</button>
+    <button type="submit" class="p-2 rounded bg-blue-500 text-white">Guardar</button>
 
 
   </form>

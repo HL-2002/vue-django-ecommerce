@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import HomeView from './views/HomeView.vue';
+import { RouterView, RouterLink } from 'vue-router';
 
 </script>
 
 <template>
-  <div class="flex gap-12 flex-col">
-    <HomeView />
-  </div>
+  <header class="flex gap-4 p-4">
+    <RouterLink to="/">home</RouterLink>
+    <RouterLink to="/form/products">Crear producto</RouterLink>
+
+    <RouterLink to="/form/reviews">Agregar review</RouterLink>
+
+  </header>
+  <RouterView />
 </template>
