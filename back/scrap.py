@@ -8,10 +8,9 @@ django.setup()
 
 import requests
 from API import models
-from datetime import datetime
+from datetime import datetime, timezone
 import re
 import random
-import pytz
 
 """ THis is throwing two errors on execution:
 1. django.core.exceptions.ImproperlyConfigured: Requested setting INSTALLED_APPS, but settings are not configured. You must either define the environment variable DJANGO_SETTINGS_MODULE or call settings.configure() before accessing settings.
@@ -98,7 +97,7 @@ def fetchProduct(id: int) -> None:
             minute=int(match["min"]),
             second=int(match["sec"]),
             microsecond=int(match["ms"]),
-            tzinfo=pytz.utc,
+            tzinfo=timezone.utc,
         )
         reviewObj = models.Review(**review, product=productObj)
         reviewObj.save()
@@ -133,7 +132,12 @@ def fetchProduct(id: int) -> None:
 
 def checkProduct(id: int) -> None:
     """Check if the product is already in the DB"""
-    print(models.Product.objects.filter(id=id))
+    print('Product: ', models.Product.objects.filter(id=id))
+    print('Reviews: ', models.Review.objects.filter(product=id))
+    print('Meta: ', models.Meta.objects.filter(product=id))
+    print('Images: ', models.Image.objects.filter(product=id))
+    print('Dimensions: ', models.Dimensions.objects.filter(product=id))
+    print('Tags: ', models.ProductTag.objects.filter(product=id))
 
 
 if __name__ == "__main__":
