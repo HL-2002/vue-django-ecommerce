@@ -27,7 +27,11 @@ class TagViewSet(viewsets.ModelViewSet):
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.prefetch_related("reviews", "images").all()
-    serializer_class = ProductSerializer
+    
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return ProductReadSerializer
+        return ProductSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

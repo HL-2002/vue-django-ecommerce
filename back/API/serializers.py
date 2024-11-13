@@ -2,49 +2,52 @@ from API.models import *
 from rest_framework import serializers
 
 
-class CategorySerializer(serializers.HyperlinkedModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ["name"]
+        fields = "__all__"
 
 
-class DimensionsSerializer(serializers.HyperlinkedModelSerializer):
-    lookup_field = "id"
-
+class DimensionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dimensions
-        fields = ["width", "height", "depth"]
+        fields = "__all__"
 
 
-class MetaSerializer(serializers.HyperlinkedModelSerializer):
+class MetaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meta
-        fields = ["createdAt", "updatedAt", "barcode", "qrCode"]
+        fields = "__all__"
 
 
-class TagSerializer(serializers.HyperlinkedModelSerializer):
+class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ["name"]
+        fields = "__all__"
 
 
-class ReviewSerializer(serializers.HyperlinkedModelSerializer):
+class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = ["rating", "comment", "date", "reviewerName", "reviewerEmail"]
+        fields = "__all__"
 
 
-class ImageSerializer(serializers.HyperlinkedModelSerializer):
+class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
-        fields = ["url"]
+        fields = "__all__"
 
 
-class ProductSerializer(serializers.HyperlinkedModelSerializer):
-    reviews = ReviewSerializer(many=True, read_only=True)
-    images = ImageSerializer(many=True, read_only=True)
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = "__all__"
+
+class ProductReadSerializer(serializers.ModelSerializer):
+    reviews = ReviewSerializer(many=True, read_only=True, required=False)
+    images = ImageSerializer(many=True, read_only=True, required=False)
 
     class Meta:
         model = Product
         fields = "__all__"
-        depth = 2
+    depth = 2
