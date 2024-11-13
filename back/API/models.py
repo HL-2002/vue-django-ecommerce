@@ -13,9 +13,7 @@ class Category(models.Model):
         ]
 
     def __str__(self):
-        return json.dumps({
-            "name": self.name
-            }, indent=4)
+        return json.dumps({"name": self.name}, indent=4)
 
 
 class Meta(models.Model):
@@ -60,9 +58,7 @@ class Tag(models.Model):
         constraints = [models.UniqueConstraint(fields=["name"], name="unique_tag_name")]
 
     def __str__(self):
-        return json.dumps({
-            "name": self.name
-            }, indent=4)
+        return json.dumps({"name": self.name}, indent=4)
 
 
 class Product(models.Model):
@@ -115,12 +111,15 @@ class Product(models.Model):
                 "minimumOrderQuantity": self.minimumOrderQuantity,
                 "thumbnail": self.thumbnail.url if self.thumbnail else None,
             },
-            indent=4, default=str
+            indent=4,
+            default=str,
         )
 
 
 class Review(models.Model):
-    product = models.ForeignKey(Product, related_name='reviews',on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Product, related_name="reviews", on_delete=models.CASCADE
+    )
     rating = models.DecimalField(max_digits=4, decimal_places=2)
     comment = models.TextField()
     date = models.DateTimeField(null=False)
@@ -143,7 +142,9 @@ class Review(models.Model):
 
 
 class Image(models.Model):
-    product = models.ForeignKey(Product, related_name='images',on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Product, related_name="images", on_delete=models.CASCADE
+    )
     url = models.ImageField(upload_to="images/")
 
     def __str__(self):

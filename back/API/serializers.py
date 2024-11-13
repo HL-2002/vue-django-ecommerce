@@ -5,41 +5,46 @@ from rest_framework import serializers
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Category
-        fields = "__all__"
+        fields = ["name"]
 
 
 class DimensionsSerializer(serializers.HyperlinkedModelSerializer):
+    lookup_field = "id"
+
     class Meta:
         model = Dimensions
-        fields = "__all__"
+        fields = ["width", "height", "depth"]
 
 
 class MetaSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Meta
-        fields = "__all__"
+        fields = ["createdAt", "updatedAt", "barcode", "qrCode"]
 
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Tag
-        fields = "__all__"
-
-
-class ProductSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Product
-        fields = "__all__"
-        depth = 2
+        fields = ["name"]
 
 
 class ReviewSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Review
-        fields = "__all__"
+        fields = ["rating", "comment", "date", "reviewerName", "reviewerEmail"]
 
 
 class ImageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Image
+        fields = ["url"]
+
+
+class ProductSerializer(serializers.HyperlinkedModelSerializer):
+    reviews = ReviewSerializer(many=True, read_only=True)
+    images = ImageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Product
         fields = "__all__"
+        depth = 2
