@@ -90,20 +90,20 @@ const filteredList = computed(() => {
 
   <div class="categoriContainer">
     <h3 class="font-bold text-xl mb-4">{{ props.labelName }}</h3>
-  <input autocomplete="false" ref="inputRef" :id="props.labelName" autofocus @keydown="onKey" v-model="textInput" />
-  <label @click="inputRef?.focus()" class="tags" for="tags-input">
+    <input autocomplete="false" ref="inputRef" :id="props.labelName" autofocus @keydown="onKey" v-model="textInput" />
+    <label @click="inputRef?.focus()" class="tags" for="tags-input">
 
-    <TransitionGroup name="list">
+      <TransitionGroup name="list">
 
-      <span @click="removeElement(word)" class="tag cursor-pointer capitalize" v-for="word in seletedCategories"
-        :key="word">
-        {{ word }}
-      </span>
-      <span class="input" key="input-vall">{{ textInput }}</span>
+        <span @click="removeElement(word)" class="tag cursor-pointer capitalize" v-for="word in seletedCategories"
+          :key="word">
+          {{ word }}
+        </span>
+        <span class="input" key="input-vall">{{ textInput }}</span>
 
-    </TransitionGroup>
+      </TransitionGroup>
 
-  </label>
+    </label>
     <Transition name="options">
       <div class="options" v-if="filteredList.length > 0">
         <TransitionGroup name="list" tag="ul">
@@ -122,7 +122,8 @@ const filteredList = computed(() => {
           class="text-xl font-bold capitalize">{{ textInput
           }}</span></h3>
       <div class="flex gap-4">
-        <button type="button" class="bg-blue-500 px-2 py-1 rounded-sm  w-full hover:bg-blue-400 focus:outline-none focus:bg-blue-400"
+        <button type="button"
+          class="bg-blue-500 px-2 py-1 rounded-sm  w-full hover:bg-blue-400 focus:outline-none focus:bg-blue-400"
           @click="addToWhitelist">yes</button>
         <button @click="DialogNo"
           class="bg-red-500 px-2 py-1 rounded-sm w-full hover:bg-red-400 focus:outline-none focus:bg-red-400">No</button>
@@ -148,7 +149,6 @@ const filteredList = computed(() => {
   box-sizing: border-box;
 }
 
-.categoriContainer
 
 .options-enter-active,
 .options-leave-active {
@@ -187,6 +187,7 @@ const filteredList = computed(() => {
   left: 0px;
   width: 100%;
   border: 1px solid darkblue;
+  background: white;
 
   ul {
     list-style: none;
@@ -238,6 +239,8 @@ input {
   gap: 7px;
   position: relative;
   flex-wrap: wrap;
+  background-color: white;
+
   .tag {
     background-color: lightskyblue;
     padding: 2px 4px;
