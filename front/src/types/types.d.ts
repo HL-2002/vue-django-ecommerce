@@ -56,9 +56,10 @@ export type SimplifiedProduct = Omit<Product, 'meta' | 'reviews'| "id"> & {
   meta: Omit<Meta, 'createdAt' | 'updatedAt' | 'qrCode'>;
 }
 
+export type NotificationType =  'error' | 'success';
+
 
 export type NotificationSooner = {
   message: string;
-  type:  'error' | 'success';
-  show: boolean;
+  type:  NotificationType
 }
