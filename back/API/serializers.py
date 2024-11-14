@@ -39,9 +39,17 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    dimensions = DimensionsSerializer()
     class Meta:
         model = Product
         fields = "__all__"
+        read_only_fields = ("id",)
+    
+    def create(self, validated_data):
+        dimensions_data = validated_data.pop('dimensions')
+        dimensions = Dimensions.objects.create(**dimensions_data)
+        product = Product.objects.create(dimensions=dimensions, **validated_data)
+        return product
 
 
 class ProductReadSerializer(serializers.ModelSerializer):
