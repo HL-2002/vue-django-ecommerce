@@ -43,6 +43,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = "__all__"
 
+
 class ProductReadSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True, read_only=True, required=False)
     images = ImageSerializer(many=True, read_only=True, required=False)
@@ -50,4 +51,5 @@ class ProductReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = "__all__"
+
     depth = 2
