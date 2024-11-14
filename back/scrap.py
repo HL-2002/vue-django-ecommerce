@@ -61,7 +61,7 @@ def fetchProduct(id: int) -> None:
     # Separate JSON into different objects
     category = product.pop("category")
     dimensions = product.pop("dimensions")
-    meta:dict = product.pop("meta")
+    meta: dict = product.pop("meta")
     qrCode = meta.pop("qrCode")
     tags = product.pop("tags")
     reviews = product.pop("reviews")
@@ -81,9 +81,8 @@ def fetchProduct(id: int) -> None:
     metaObj = models.Meta.objects.all().last()
 
     # QrCode
-    qrCodeObj = models.QrCode(url = qrCode, meta=metaObj)
+    qrCodeObj = models.QrCode(url=qrCode, meta=metaObj)
     qrCodeObj.save()
-
 
     # Dimensions
     dimensionsObj = models.Dimensions(**dimensions)
@@ -103,7 +102,9 @@ def fetchProduct(id: int) -> None:
 
     # Product
     if len(models.Product.objects.filter(title=product["title"])) == 0:
-        productObj = models.Product(**product, category=categoryObj, meta=metaObj, dimensions=dimensionsObj)
+        productObj = models.Product(
+            **product, category=categoryObj, meta=metaObj, dimensions=dimensionsObj
+        )
         productObj.save()
         productObj.tags.add(*dbTags)
     productObj = models.Product.objects.get(title=product["title"])
@@ -140,10 +141,12 @@ def checkProduct(id: int) -> None:
     """Check if the product is already in the DB"""
 
     # Testing inner joins
-    testProduct = models.Product.objects.prefetch_related('images', 'reviews').get(id=id)
-    print('Test Product: ', testProduct)
-    print('Images: ', testProduct.images.all())
-    print('Reviews: ', testProduct.reviews.all())
+    testProduct = models.Product.objects.prefetch_related("images", "reviews").get(
+        id=id
+    )
+    print("Test Product: ", testProduct)
+    print("Images: ", testProduct.images.all())
+    print("Reviews: ", testProduct.reviews.all())
 
 
 if __name__ == "__main__":
