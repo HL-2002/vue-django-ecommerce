@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
 import CategorySelector from "./CategorySelector.vue"
+import NotificationDialog from './NotificationDialog.vue'
 import InputFile from './inputFile.vue';
-import { createProduct, getCategories, getTags } from '@/services/products';
-import type { Category, } from '@/types/types';
+import { API_URL, createProduct, getCategories, getTags } from '@/services/products';
+import type { Category, Tag, Product, NotificationSooner } from '@/types/types';
 
-const selectedCategory = ref<string[]>([])
-const selectedTags = ref<string[]>([])
+const selectedCategory = ref<Category[]>([])
+const selectedTags = ref<Tag[]>([])
 // put a default image for the miniature
 const seletedMiniature = ref<{ id: string, url: string }>({ id: "algo", url: 'https://placehold.co/150/webp' })
 const maxFilesError = ref(false)
-
+const notification = ref<NotificationSooner>({ message: '', show: false, type: 'success' })
 // null is the default value or date
 const shippingDate = ref()
 
@@ -54,7 +55,7 @@ tomorrow = new Date(tomorrow.toISOString().split('T')[0]).toISOString().split('T
 
 
 const categories = ref<Category[]>([])
-const tags = ref<{id:number,name:string}[]>([])
+const tags = ref<{ id: number, name: string }[]>([])
 
 onMounted(() => {
   getCategories()
@@ -67,53 +68,142 @@ onMounted(() => {
     })
 
   getTags()
-  .then((data)=>{
-    tags.value = data
-    console.log(data)
-  })
-  .catch((err)=>{
-    console.log(err)
-  })
+    .then((data) => {
+      tags.value = data
+      console.log(data)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
 
 
 })
 
 
-function submitForm(event: Event) {
+async function submitForm(event: Event) {
   const formData = new FormData(event.target as HTMLFormElement)
-
   const images: File[] = formData.getAll('images') as File[]
+
+  if (images.length < 3) {
+    notification.value = {
+      message: 'Se requieren al menos 3 imagenes',
+      show: true,
+      type: 'error'
+    }
+    return
+  }
+
+  if (selectedCategory.value.length === 0) {
+    notification.value = {
+      message: 'Se requiere una categoria',
+      show: true,
+      type: 'error'
+    }
+    return
+  }
+
+
+  if (selectedTags.value.length === 0) {
+    notification.value = {
+      message: 'Se requiere al menos un tag',
+      show: true,
+      type: 'error'
+    }
+    return
+  }
+
+
+
   let thumbnail = images.find((image) => image.name === seletedMiniature.value.id)
   if (!thumbnail) {
     thumbnail = images[0]
   }
 
 
-  formData.append('category', selectedCategory.value[0])
-  formData.append('tags', selectedTags.value.join(','))
-  formData.append('thumnail', thumbnail as File)
+  formData.append('category', selectedCategory.value[0].id.toString())
+  formData.append('thumbnail', thumbnail as File)
 
 
+  formData.append('dimensions.depth', formData.get('depth') as string)
+  formData.append('dimensions.width', formData.get("width") as string)
+  formData.append('dimensions.height', formData.get("height") as string)
+
+  selectedTags.value.forEach((tag) => {
+    formData.append('tags', tag.id.toString())
+  })
+
+  formData.append("meta", formData.get("barcode") as string)
+  formData.append("meta.barcode", formData.get("barcode") as string)
+
+
+  fetch(`${API_URL}/API/product/`, {
+    method: 'POST',
+    body: formData
+  })
+    .then(response => response.json())
+    .then((data: Product) => {
+      console.log(data)
+    })
+    .catch(err => {
+      console.log(err)
+    })
 
 }
 
 
+/* {
+    "id": [
+        "This field is required."
+    ],
+    "discountPercentage": [
+        "This field is required."
+    ],
+    "rating": [
+        "This field is required."
+    ],
+    "warrantyInformation": [
+        "This field is required."
+    ],
+    "shippingInformation": [
+        "This field is required."
+    ],
+    "returnPolicy": [
+        "This field is required."
+    ],
+    "minimumOrderQuantity": [
+        "This field is required."
+    ],
+    "thumbnail": [
+        "No file was submitted."
+    ],
+    "dimensions": [
+        "This field is required."
+    ],
+    "meta": [
+        "This field is required."
+    ],
+    "tags": [
+        "Incorrect type. Expected pk value, received str."
+    ]
+} */
 
 
 </script>
 
 <template>
-  <form @submit.prevent="submitForm" class="w-1/2 m-auto flex flex-col gap-4
+  <NotificationDialog :show="notification.show" :message="notification.message" :type="notification.type"
+    @close="notification.show = false" />
+  <form enctype="multipart/form-data" @submit.prevent="submitForm" class="w-1/2 m-auto flex flex-col gap-4
     bg-neutral-100 p-6 rounded-lg shadow-md mb-4
 
   ">
 
 
 
-    <h1 class="text-2xl font-bold text-center">Crea un producto</h1>
+    <h1 @click="notification.show = !notification.show" class="text-2xl font-bold text-center">Crea un producto</h1>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Titulo
-      <input type="text" name="title"
+      <input required type="text" name="title"
         class="text-sm font-normal p-2 border border-neutral-500 rounded  focus:outline-none focus:border-neutral-800" />
     </label>
     <label class="flex flex-col gap-2 text-xl font-bold">
@@ -123,28 +213,28 @@ function submitForm(event: Event) {
     </label>
 
     <CategorySelector v-model="selectedCategory" label-name="Categorias" creation-name="categoria"
-      :default-whitelist="categories" :limit="1"/>
+      :default-whitelist="categories" :limit="1" />
     <label class="flex flex-col gap-2 text-xl font-bold">
       Precio
-      <input step="0.01" type="number" name="price"
+      <input required step="0.01" type="number" name="price"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Porcentaje de descuento
-      <input step=".01" ype="number" name="discount"
+      <input required step=".01" type="number" name="discountPercentage"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Rating
-      <input disabled value="5" step=".01" type="number" name="rating"
+      <input value="5" required type="number" name="rating"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800 disabled:opacity-50" />
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Stock
-      <input type="number" name="stock"
+      <input required type="number" name="stock"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
@@ -152,19 +242,19 @@ function submitForm(event: Event) {
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Marca
-      <input type="text" name="brand"
+      <input required type="text" name="brand"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       SKU
-      <input type="text" name="sku"
+      <input required type="text" name="sku"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Peso
-      <input type="number" name="weight"
+      <input required type="number" name="weight"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
@@ -178,12 +268,12 @@ function submitForm(event: Event) {
         </div>
         <div class="flex flex-col">
           <span>Alto</span>
-          <input type="number" name="height"
+          <input required type="number" name="height"
             class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
         </div>
         <div class="flex flex-col">
           <span>Profundidad</span>
-          <input type="number" name="depth"
+          <input required type="number" name="depth"
             class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
         </div>
       </div>
@@ -191,13 +281,13 @@ function submitForm(event: Event) {
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Informacion de garantia
-      <textarea name="warranty"
+      <textarea required name="warrantyInformation"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800"></textarea>
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Informacion de envio
-      <input name="shipping"
+      <input required name="shippingInformation"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800"
         type="date" v-model="shippingDate" :min="tomorrow" />
 
@@ -210,7 +300,7 @@ function submitForm(event: Event) {
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Estado de disponibilidad
-      <select name="availability"
+      <select required name="availabilityStatus"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800">
         <option value="inStock">en existencia</option>
         <option value="lowStock">Baja cantidad</option>
@@ -219,13 +309,13 @@ function submitForm(event: Event) {
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Politica de devolucion
-      <textarea name="return"
+      <textarea required name="returnPolicy"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800"></textarea>
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Cantidad minima de orden
-      <input type="number" name="minOrder"
+      <input required type="number" name="minimumOrderQuantity"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
@@ -243,7 +333,7 @@ text-sm font-bold
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Codigo de barras
-      <input type="text" name="barcode"
+      <input required type="text" name="barcode"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
