@@ -46,8 +46,7 @@ class QrCodeDisplaySerializer(serializers.ModelSerializer):
 class MetaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meta
-        fields = "__all__"
-
+        fields = ['barcode']
 
 class MetaReadSerializer(serializers.ModelSerializer):
     qrCode = QrCodeDisplaySerializer()
@@ -105,7 +104,8 @@ class ImageDisplaySerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     dimensions = DimensionsSerializer()
-
+    meta = MetaSerializer()
+    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
     class Meta:
         model = Product
         fields = "__all__"
@@ -113,9 +113,27 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         dimensions_data = validated_data.pop("dimensions")
+        meta_data = validated_data.pop("meta")
+        tags_data = validated_data.pop("tags")
+        
+        
+        # Create the nested dimensions object first
         dimensions = Dimensions.objects.create(**dimensions_data)
-        product = Product.objects.create(dimensions=dimensions, **validated_data)
+
+        # # Create the nested meta object and initialize the createAt and updatedAt fields
+        meta = Meta.objects.create(**meta_data)
+
+
+
+        product = Product.objects.create(dimensions=dimensions,meta=meta, **validated_data)
+        product.tags.set(tags_data)
         return product
+    def update(self,instance,validated_data):
+        meta_data = validated_data.pop("meta",None)
+        if meta_data:
+            meta_serializer = self.fields['meta']
+            meta_instance = instance.meta
+            meta_serializer.update(meta_instance,meta_data)
 
 
 class ProductReadSerializer(serializers.ModelSerializer):

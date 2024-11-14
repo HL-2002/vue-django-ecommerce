@@ -17,8 +17,8 @@ class Category(models.Model):
 
 
 class Meta(models.Model):
-    createdAt = models.DateTimeField()
-    updatedAt = models.DateTimeField()
+    createdAt = models.DateTimeField(auto_now_add=True) 
+    updatedAt = models.DateTimeField(auto_now=True)
     barcode = models.CharField(max_length=100)
 
     def __str__(self):
