@@ -48,6 +48,17 @@ export type Category = {
   id:   number;
   name: string;
 }
+
+export type Tag =  Category
+
+
 export type SimplifiedProduct = Omit<Product, 'meta' | 'reviews'| "id"> & {
   meta: Omit<Meta, 'createdAt' | 'updatedAt' | 'qrCode'>;
+}
+
+
+export type NotificationSooner = {
+  message: string;
+  type:  'error' | 'success';
+  show: boolean;
 }
