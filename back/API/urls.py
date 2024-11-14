@@ -12,6 +12,7 @@ router.register(r"category", views.CategoryViewSet)
 router.register(r"tag", views.TagViewSet)
 router.register(r"review", views.ReviewViewSet)
 router.register(r"image", views.ImageViewSet)
+router.register(r"qrCode", views.QrCodeViewSet)
 
 
 urlpatterns = [

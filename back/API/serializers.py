@@ -8,7 +8,7 @@ Each model has its own serializer, which is used to convert the model to JSON an
 However, some models have a different serializer for reading and writing, as the data is structured differently.
 For writing, the usual serializer is used, as it doesn't include the nested data.
 For reading, a different serializer is used, as it includes the nested data.
-For displaying FKs, another serializer is used, as it includes only a distilled version of the object.
+For displaying FKs, another serializer is used, as it includes only a distilled version of the object without fk.
 
 """
 
@@ -23,12 +23,6 @@ class DimensionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dimensions
         fields = "__all__"
-
-
-class DimensionDisplaySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Dimensions
-        exclude = ["id"]
 
 
 class QrCodeSerializer(serializers.ModelSerializer):
@@ -46,7 +40,7 @@ class QrCodeDisplaySerializer(serializers.ModelSerializer):
 class MetaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meta
-        fields = ['barcode']
+        fields = '__all__'
 
 class MetaReadSerializer(serializers.ModelSerializer):
     qrCode = QrCodeDisplaySerializer()
@@ -58,24 +52,10 @@ class MetaReadSerializer(serializers.ModelSerializer):
     depth = 2
 
 
-class MetaDisplaySerializer(serializers.ModelSerializer):
-    qrCode = QrCodeDisplaySerializer()
-
-    class Meta:
-        model = Meta
-        exclude = ["id"]
-
-
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = "__all__"
-
-
-class TagDisplaySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tag
-        exclude = ["id"]
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -87,7 +67,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class ReviewDisplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        exclude = ["product", "id"]
+        exclude = ["product"]
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -138,8 +118,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class ProductReadSerializer(serializers.ModelSerializer):
     category = serializers.StringRelatedField()
-    meta = MetaDisplaySerializer()
-    dimensions = DimensionDisplaySerializer()
+    meta = MetaReadSerializer()
+    dimensions = DimensionsSerializer()
     tags = serializers.StringRelatedField(many=True)
     reviews = ReviewDisplaySerializer(many=True, read_only=True, required=False)
     images = ImageDisplaySerializer(many=True, read_only=True, required=False)
