@@ -9,6 +9,7 @@ requests = "*"
 simplejson = "*"
 djangorestframework = "*"
 django = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 

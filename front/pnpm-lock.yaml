@@ -11,6 +11,9 @@ importers:
       datatables.net-dt:
         specifier: ^2.1.8
         version: 2.1.8
+      datatables.net-plugins:
+        specifier: ^2.1.7
+        version: 2.1.7
       datatables.net-vue3:
         specifier: ^3.0.2
         version: 3.0.2(datatables.net@2.1.8)(vue@3.5.12(typescript@5.6.3))
@@ -426,11 +429,17 @@ packages:
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
 
+  '@types/jquery@3.5.32':
+    resolution: {integrity: sha512-b9Xbf4CkMqS02YH8zACqN1xzdxc3cO735Qe5AbSUFmyOiaWAbcpqh9Wna+Uk0vgACvoQHpWDg2rGdHkYPLmCiQ==}
+
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
   '@types/node@20.17.6':
     resolution: {integrity: sha512-VEI7OdvK2wP7XHnsuXbAJnEpEkF6NjSN45QJlL4VGqZSXsnicpesdTWsg9RISeSdYd3yeRj/y3k5KGjUXYnFwQ==}
+
+  '@types/sizzle@2.3.9':
+    resolution: {integrity: sha512-xzLEyKB50yqCUPUJkIsrVvoWNfFUbIZI+RspLWt8u+tIW/BetMBZtgV2LY/2o+tYH8dRvQ+eoPf3NdhQCcLE2w==}
 
   '@typescript-eslint/eslint-plugin@8.13.0':
     resolution: {integrity: sha512-nQtBLiZYMUPkclSeC3id+x4uVd1SGtHuElTxL++SfP47jR0zfkZBJHc+gL4qPsgTuypz0k8Y2GheaDYn6Gy3rg==}
@@ -692,6 +701,9 @@ packages:
 
   datatables.net-dt@2.1.8:
     resolution: {integrity: sha512-/ScKmyKIpKXzjOJrnJLOWMf2jOQfrYjayNMhUyeMzf3jKhNevHNvImU9MQ/Bab9yheKLjHLL24IgnshAvRFrng==}
+
+  datatables.net-plugins@2.1.7:
+    resolution: {integrity: sha512-0lk5YOhwo4rlsgaOFqnP9nwCg6bI7sjzX07XSLqDGJqu6YT7rw9P+BiMekNYVTQQwevYVlt74C1j38UwZOKctw==}
 
   datatables.net-vue3@3.0.2:
     resolution: {integrity: sha512-UJs3IrKS+gsaPSy3CeL5ny/hGWm8xs77DZLYSW8QXPpDhMS7ZZfC4AGKNvXa2C9J1OllWhiR20dScpi0lKdCvQ==}
@@ -1729,11 +1741,17 @@ snapshots:
 
   '@types/estree@1.0.6': {}
 
+  '@types/jquery@3.5.32':
+    dependencies:
+      '@types/sizzle': 2.3.9
+
   '@types/json-schema@7.0.15': {}
 
   '@types/node@20.17.6':
     dependencies:
       undici-types: 6.19.8
+
+  '@types/sizzle@2.3.9': {}
 
   '@typescript-eslint/eslint-plugin@8.13.0(@typescript-eslint/parser@8.13.0(eslint@9.14.0(jiti@1.21.6))(typescript@5.6.3))(eslint@9.14.0(jiti@1.21.6))(typescript@5.6.3)':
     dependencies:
@@ -2051,6 +2069,11 @@ snapshots:
     dependencies:
       datatables.net: 2.1.8
       jquery: 3.7.1
+
+  datatables.net-plugins@2.1.7:
+    dependencies:
+      '@types/jquery': 3.5.32
+      datatables.net: 2.1.8
 
   datatables.net-vue3@3.0.2(datatables.net@2.1.8)(vue@3.5.12(typescript@5.6.3)):
     dependencies:
