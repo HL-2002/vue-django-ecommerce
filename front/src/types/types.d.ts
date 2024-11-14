@@ -43,3 +43,11 @@ export type Review = {
   reviewerName:  string;
   reviewerEmail: string;
 }
+
+export type Category = {
+  id:   number;
+  name: string;
+}
+export type SimplifiedProduct = Omit<Product, 'meta' | 'reviews'| "id"> & {
+  meta: Omit<Meta, 'createdAt' | 'updatedAt' | 'qrCode'>;
+}
