@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import CategorySelector from "./CategorySelector.vue"
 import InputFile from './inputFile.vue';
+import { createProduct, getCategories } from '@/services/products';
+import type { Category, } from '@/types/types';
 
 const selectedCategory = ref<string[]>([])
 const selectedTags = ref<string[]>([])
 // put a default image for the miniature
-const seletedMiniature = ref<string>('https://placehold.co/150/webp')
+const seletedMiniature = ref<{ id: string, url: string }>({ id: "algo", url: 'https://placehold.co/150/webp' })
 const maxFilesError = ref(false)
 
 // null is the default value or date
 const shippingDate = ref()
 
-function updateMiniature(image: string) {
+function updateMiniature(image: { id: string, url: string }) {
   seletedMiniature.value = image
 }
 
@@ -50,10 +52,45 @@ let tomorrow: Date | string = new Date()
 tomorrow.setDate(tomorrow.getDate() + 1)
 tomorrow = new Date(tomorrow.toISOString().split('T')[0]).toISOString().split('T')[0]
 
+
+const categories = ref<Category[]>([])
+
+onMounted(() => {
+  getCategories()
+    .then(data => {
+      categories.value = data
+    })
+    .catch(err => {
+      console.log(err)
+    })
+})
+
+
+function submitForm(event: Event) {
+  const formData = new FormData(event.target as HTMLFormElement)
+
+  const images: File[] = formData.getAll('images') as File[]
+  let thumbnail = images.find((image) => image.name === seletedMiniature.value.id)
+  if (!thumbnail) {
+    thumbnail = images[0]
+  }
+
+
+  formData.append('category', selectedCategory.value[0])
+  formData.append('tags', selectedTags.value.join(','))
+  formData.append('thumnail', thumbnail as File)
+
+
+
+}
+
+
+
+
 </script>
 
 <template>
-  <form class="w-1/2 m-auto flex flex-col gap-4
+  <form @submit.prevent="submitForm" class="w-1/2 m-auto flex flex-col gap-4
     bg-neutral-100 p-6 rounded-lg shadow-md mb-4
 
   ">
@@ -73,7 +110,7 @@ tomorrow = new Date(tomorrow.toISOString().split('T')[0]).toISOString().split('T
     </label>
 
     <CategorySelector v-model="selectedCategory" label-name="Categorias" creation-name="categoria"
-      :default-whitelist="['cocina', 'electrodomesticos']" />
+      :default-whitelist="categories" />
     <label class="flex flex-col gap-2 text-xl font-bold">
       Precio
       <input step="0.01" type="number" name="price"
@@ -98,8 +135,7 @@ tomorrow = new Date(tomorrow.toISOString().split('T')[0]).toISOString().split('T
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
-    <CategorySelector v-model="selectedTags" label-name="Tags" creation-name="Tag"
-      :default-whitelist="['vegetariano', 'down']" />
+    <CategorySelector v-model="selectedTags" label-name="Tags" creation-name="Tag" :default-whitelist="[]" />
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Marca
@@ -189,7 +225,7 @@ text-sm font-bold
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Miniatura
-      <img :src="seletedMiniature" class="w-24 h-24 object-cover" />
+      <img :src="seletedMiniature.url" class="w-24 h-24 object-cover" />
     </label>
 
     <label class="flex flex-col gap-2 text-xl font-bold">
