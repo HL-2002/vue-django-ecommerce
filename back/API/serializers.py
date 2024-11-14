@@ -118,7 +118,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class ProductReadSerializer(serializers.ModelSerializer):
     category = serializers.StringRelatedField()
-    meta = MetaSerializer()
+    meta = MetaReadSerializer()
     dimensions = DimensionsSerializer()
     tags = serializers.StringRelatedField(many=True)
     reviews = ReviewDisplaySerializer(many=True, read_only=True, required=False)
