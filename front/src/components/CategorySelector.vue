@@ -16,7 +16,7 @@ const props = defineProps({
     type: Array as () => Category[],
     required: true
   },
-  limit :{
+  limit: {
     type: Number
   }
 
@@ -27,11 +27,11 @@ const inputRef = ref<HTMLInputElement | null>(null)
 const whiteList = ref<Category[]>(props.defaultWhitelist)
 const dialogRef = ref<HTMLDialogElement | null>(null)
 
-const seletedCategories = defineModel<string[]>({
+const seletedCategories = defineModel<Category[]>({
   required: true
 })
 
-watchEffect(()=>{
+watchEffect(() => {
   whiteList.value = props.defaultWhitelist
 })
 
@@ -40,7 +40,7 @@ watchEffect(()=>{
 function onKey(event: KeyboardEvent) {
   if (event.key == "Enter" && textInput.value?.trim() !== "") {
     const valueInLowerCase = textInput.value.toLowerCase()
-    if (seletedCategories.value.includes(valueInLowerCase)) {
+    if (seletedCategories.value.some((v) => v.name.toLowerCase() == valueInLowerCase)) {
       textInput.value = ''
       return
     }
@@ -55,7 +55,9 @@ function onKey(event: KeyboardEvent) {
       return
     }
 
-    CreateTagByText(textInput.value)
+    const newCategory = whiteList.value.find((v) => v.name.toLowerCase() == valueInLowerCase)!
+
+    CreateTagByText(newCategory)
 
   }
 
@@ -67,20 +69,20 @@ function onKey(event: KeyboardEvent) {
 }
 
 
-function CreateTagByText(name: string) {
-    if(props.limit !== undefined && props.limit == seletedCategories.value.length){
-      seletedCategories.value.pop()
-    }
+function CreateTagByText(newCategory: Category) {
+  if (props.limit !== undefined && props.limit == seletedCategories.value.length) {
+    seletedCategories.value.pop()
+  }
   textInput.value = ""
-  seletedCategories.value.push(name.toLowerCase())
+  seletedCategories.value.push(newCategory)
 }
 
 
 async function addToWhitelist() {
-  if (props.labelName == "Tags"){
-    createTag({name:textInput.value.toLowerCase()}).then((data)=>{
+  if (props.labelName == "Tags") {
+    createTag({ name: textInput.value.toLowerCase() }).then((data) => {
       whiteList.value.push(data)
-      CreateTagByText(textInput.value)
+      CreateTagByText(data)
     })
     if (dialogRef.value) dialogRef.value.close()
     return
@@ -89,13 +91,13 @@ async function addToWhitelist() {
 
   createCategory({ name: textInput.value.toLowerCase() }).then((data) => {
     whiteList.value.push(data)
-    CreateTagByText(textInput.value)
+    CreateTagByText(data)
     if (dialogRef.value) dialogRef.value.close()
   })
 }
 
-function removeElement(name: string) {
-  seletedCategories.value = seletedCategories.value.filter((v) => !v.includes(name))
+function removeElement(id: number) {
+  seletedCategories.value = seletedCategories.value.filter((v) => v.id !== id)
 }
 
 function DialogNo() {
@@ -110,14 +112,14 @@ function isInWhiteList(name: string) {
 }
 
 function isInCategories(name: string) {
-  return seletedCategories.value.some((v) => v.toLowerCase() == name.toLowerCase())
+  return seletedCategories.value.some((v) => v.name == name)
 }
 
 
 
 const filteredList = computed(() => {
 
-  return whiteList.value.filter( (v) => v.name.toLowerCase().includes(textInput.value.toLowerCase()) && !isInCategories(v.name))
+  return whiteList.value.filter((v) => v.name.toLowerCase().includes(textInput.value.toLowerCase()) && !isInCategories(v.name))
 
 })
 
@@ -134,9 +136,9 @@ const filteredList = computed(() => {
 
       <TransitionGroup name="list">
 
-        <span @click="removeElement(word)" class="tag cursor-pointer capitalize" v-for="word in seletedCategories"
-          :key="word">
-          {{ word }}
+        <span @click="removeElement(word.id)" class="tag cursor-pointer capitalize" v-for="word in seletedCategories"
+          :key="word.id">
+          {{ word.name }}
         </span>
         <span class="input" key="input-vall">{{ textInput }}</span>
 
@@ -146,7 +148,7 @@ const filteredList = computed(() => {
     <Transition name="options">
       <div class="options" v-if="filteredList.length > 0">
         <TransitionGroup name="list" tag="ul">
-          <li @click="CreateTagByText(element.name)" v-for="element in filteredList" :key="element.id">
+          <li @click="CreateTagByText(element)" v-for="element in filteredList" :key="element.id">
             <button type="button" class="capitalize">{{ element.name }}</button>
           </li>
         </TransitionGroup>
