@@ -1,17 +1,21 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
 import CategorySelector from "./CategorySelector.vue"
-import NotificationDialog from './NotificationDialog.vue'
 import InputFile from './inputFile.vue';
-import { API_URL, createProduct, getCategories, getTags } from '@/services/products';
-import type { Category, Tag, Product, NotificationSooner } from '@/types/types';
+import { API_URL, getCategories, getTags } from '@/services/products';
+import type { Category, Tag, Product } from '@/types/types';
+import { useNotificationStore } from '@/stores/notification';
+
+const notification = useNotificationStore()
+const { notify } = notification
+
 
 const selectedCategory = ref<Category[]>([])
 const selectedTags = ref<Tag[]>([])
 // put a default image for the miniature
 const seletedMiniature = ref<{ id: string, url: string }>({ id: "algo", url: 'https://placehold.co/150/webp' })
 const maxFilesError = ref(false)
-const notification = ref<NotificationSooner>({ message: '', show: false, type: 'success' })
+// const notification = ref<NotificationSooner>({ message: '', show: false, type: 'success' })
 // null is the default value or date
 const shippingDate = ref()
 
@@ -85,30 +89,26 @@ async function submitForm(event: Event) {
   const images: File[] = formData.getAll('images') as File[]
 
   if (images.length < 3) {
-    notification.value = {
+    notify({
       message: 'Se requieren al menos 3 imagenes',
-      show: true,
       type: 'error'
     }
+    )
     return
   }
-
   if (selectedCategory.value.length === 0) {
-    notification.value = {
+    notify({
       message: 'Se requiere una categoria',
-      show: true,
       type: 'error'
-    }
+    })
     return
   }
-
 
   if (selectedTags.value.length === 0) {
-    notification.value = {
+    notify({
       message: 'Se requiere al menos un tag',
-      show: true,
       type: 'error'
-    }
+    })
     return
   }
 
@@ -151,48 +151,19 @@ async function submitForm(event: Event) {
 }
 
 
-/* {
-    "id": [
-        "This field is required."
-    ],
-    "discountPercentage": [
-        "This field is required."
-    ],
-    "rating": [
-        "This field is required."
-    ],
-    "warrantyInformation": [
-        "This field is required."
-    ],
-    "shippingInformation": [
-        "This field is required."
-    ],
-    "returnPolicy": [
-        "This field is required."
-    ],
-    "minimumOrderQuantity": [
-        "This field is required."
-    ],
-    "thumbnail": [
-        "No file was submitted."
-    ],
-    "dimensions": [
-        "This field is required."
-    ],
-    "meta": [
-        "This field is required."
-    ],
-    "tags": [
-        "Incorrect type. Expected pk value, received str."
-    ]
-} */
+
+function throwNotification() {
+  notify({
+    message: 'hola',
+    type: 'success'
+  })
+}
 
 
 </script>
 
 <template>
-  <NotificationDialog :show="notification.show" :message="notification.message" :type="notification.type"
-    @close="notification.show = false" />
+
   <form enctype="multipart/form-data" @submit.prevent="submitForm" class="w-1/2 m-auto flex flex-col gap-4
     bg-neutral-100 p-6 rounded-lg shadow-md mb-4
 
@@ -200,7 +171,7 @@ async function submitForm(event: Event) {
 
 
 
-    <h1 @click="notification.show = !notification.show" class="text-2xl font-bold text-center">Crea un producto</h1>
+    <h1 @click="throwNotification" class="text-2xl font-bold text-center">Crea un producto</h1>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Titulo
       <input required type="text" name="title"

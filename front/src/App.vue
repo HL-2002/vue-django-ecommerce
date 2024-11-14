@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView, RouterLink } from 'vue-router';
-
+import NotificationDialog from './components/NotificationDialog.vue'
 </script>
 
 <template>
@@ -11,5 +11,6 @@ import { RouterView, RouterLink } from 'vue-router';
     <RouterLink to="/form/reviews">Agregar review</RouterLink>
 
   </header>
+  <NotificationDialog />
   <RouterView />
 </template>

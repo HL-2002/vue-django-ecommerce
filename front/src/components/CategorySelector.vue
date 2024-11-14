@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { createCategory, createTag } from '@/services/products';
 import type { Category } from '@/types/types';
-import { ref, computed, watchEffect, watch } from 'vue';
+import { ref, computed, watchEffect } from 'vue';
 
 const props = defineProps({
   labelName: {
@@ -135,7 +135,6 @@ const filteredList = computed(() => {
     <label @click="inputRef?.focus()" class="tags" for="tags-input">
 
       <TransitionGroup name="list">
-
         <span @click="removeElement(word.id)" class="tag cursor-pointer capitalize" v-for="word in seletedCategories"
           :key="word.id">
           {{ word.name }}
