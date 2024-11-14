@@ -2,7 +2,7 @@
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net-dt'
 import LenguageSpanish from 'datatables.net-plugins/i18n/es-MX.json'
-import { computed, onMounted, ref, watchEffect } from 'vue';
+import { onMounted, ref } from 'vue';
 import type { Product } from '@/types/types';
 import { getProducts } from '@/services/products';
 
