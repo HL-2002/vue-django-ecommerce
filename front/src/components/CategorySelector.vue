@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { createCategory, createTag } from '@/services/products';
 import type { Category } from '@/types/types';
-import { ref, computed } from 'vue';
+import { ref, computed, watchEffect, watch } from 'vue';
 
 const props = defineProps({
   labelName: {
@@ -14,10 +15,12 @@ const props = defineProps({
   defaultWhitelist: {
     type: Array as () => Category[],
     required: true
+  },
+  limit :{
+    type: Number
   }
 
 })
-
 
 const textInput = ref('')
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -28,6 +31,12 @@ const seletedCategories = defineModel<string[]>({
   required: true
 })
 
+watchEffect(()=>{
+  whiteList.value = props.defaultWhitelist
+})
+
+
+
 function onKey(event: KeyboardEvent) {
   if (event.key == "Enter" && textInput.value?.trim() !== "") {
     const valueInLowerCase = textInput.value.toLowerCase()
@@ -36,7 +45,9 @@ function onKey(event: KeyboardEvent) {
       return
     }
 
-    if (!whiteList.value.includes(valueInLowerCase)) {
+    const isInWhiteList = whiteList.value.some((v) => v.name.toLowerCase() == valueInLowerCase)
+
+    if (!isInWhiteList) {
       if (dialogRef.value) {
         dialogRef.value.showModal()
         dialogRef.value.focus()
@@ -57,15 +68,30 @@ function onKey(event: KeyboardEvent) {
 
 
 function CreateTagByText(name: string) {
+    if(props.limit !== undefined && props.limit == seletedCategories.value.length){
+      seletedCategories.value.pop()
+    }
   textInput.value = ""
   seletedCategories.value.push(name.toLowerCase())
 }
 
 
-function addToWhitelist() {
-  whiteList.value.push(textInput.value.toLowerCase())
-  CreateTagByText(textInput.value)
-  if (dialogRef.value) dialogRef.value.close()
+async function addToWhitelist() {
+  if (props.labelName == "Tags"){
+    createTag({name:textInput.value.toLowerCase()}).then((data)=>{
+      whiteList.value.push(data)
+      CreateTagByText(textInput.value)
+    })
+    if (dialogRef.value) dialogRef.value.close()
+    return
+  }
+
+
+  createCategory({ name: textInput.value.toLowerCase() }).then((data) => {
+    whiteList.value.push(data)
+    CreateTagByText(textInput.value)
+    if (dialogRef.value) dialogRef.value.close()
+  })
 }
 
 function removeElement(name: string) {
@@ -79,11 +105,23 @@ function DialogNo() {
 }
 
 
+function isInWhiteList(name: string) {
+  return whiteList.value.some((v) => v.name.toLowerCase() == name.toLowerCase())
+}
+
+function isInCategories(name: string) {
+  return seletedCategories.value.some((v) => v.toLowerCase() == name.toLowerCase())
+}
+
+
+
 const filteredList = computed(() => {
 
-  return whiteList.value.filter((v) => v.includes(textInput.value.toLowerCase()) && !seletedCategories.value.includes(v))
+  return whiteList.value.filter( (v) => v.name.toLowerCase().includes(textInput.value.toLowerCase()) && !isInCategories(v.name))
 
 })
+
+
 
 </script>
 
@@ -108,8 +146,8 @@ const filteredList = computed(() => {
     <Transition name="options">
       <div class="options" v-if="filteredList.length > 0">
         <TransitionGroup name="list" tag="ul">
-          <li @click="CreateTagByText(element)" v-for="element in filteredList" :key="element">
-            <button type="button" class="capitalize">{{ element }}</button>
+          <li @click="CreateTagByText(element.name)" v-for="element in filteredList" :key="element.id">
+            <button type="button" class="capitalize">{{ element.name }}</button>
           </li>
         </TransitionGroup>
       </div>

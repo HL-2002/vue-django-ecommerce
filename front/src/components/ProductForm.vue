@@ -2,7 +2,7 @@
 import { computed, ref, onMounted } from 'vue';
 import CategorySelector from "./CategorySelector.vue"
 import InputFile from './inputFile.vue';
-import { createProduct, getCategories } from '@/services/products';
+import { createProduct, getCategories, getTags } from '@/services/products';
 import type { Category, } from '@/types/types';
 
 const selectedCategory = ref<string[]>([])
@@ -54,15 +54,28 @@ tomorrow = new Date(tomorrow.toISOString().split('T')[0]).toISOString().split('T
 
 
 const categories = ref<Category[]>([])
+const tags = ref<{id:number,name:string}[]>([])
 
 onMounted(() => {
   getCategories()
     .then(data => {
       categories.value = data
+      console.log(data)
     })
     .catch(err => {
       console.log(err)
     })
+
+  getTags()
+  .then((data)=>{
+    tags.value = data
+    console.log(data)
+  })
+  .catch((err)=>{
+    console.log(err)
+  })
+
+
 })
 
 
@@ -110,7 +123,7 @@ function submitForm(event: Event) {
     </label>
 
     <CategorySelector v-model="selectedCategory" label-name="Categorias" creation-name="categoria"
-      :default-whitelist="categories" />
+      :default-whitelist="categories" :limit="1"/>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Precio
       <input step="0.01" type="number" name="price"
@@ -135,7 +148,7 @@ function submitForm(event: Event) {
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800" />
     </label>
 
-    <CategorySelector v-model="selectedTags" label-name="Tags" creation-name="Tag" :default-whitelist="[]" />
+    <CategorySelector v-model="selectedTags" label-name="Tags" creation-name="Tag" :default-whitelist="tags" />
 
     <label class="flex flex-col gap-2 text-xl font-bold">
       Marca
