@@ -20,7 +20,6 @@ class Meta(models.Model):
     createdAt = models.DateTimeField()
     updatedAt = models.DateTimeField()
     barcode = models.CharField(max_length=100)
-    qrCode = models.CharField(max_length=100)
 
     def __str__(self):
         return json.dumps(
@@ -33,6 +32,11 @@ class Meta(models.Model):
             indent=4,
             default=str,
         )
+    
+class QrCode(models.Model):
+    meta = models.OneToOneField(Meta, related_name='qrCode',on_delete=models.CASCADE)
+    url = models.ImageField(upload_to="qr/")
+
 
 
 class Dimensions(models.Model):

@@ -49,6 +49,7 @@ def clearDB() -> None:
     models.Product.objects.all().delete()
     models.Review.objects.all().delete()
     models.Image.objects.all().delete()
+    models.QrCode.objects.all().delete()
 
 
 def fetchProduct(id: int) -> None:
@@ -60,7 +61,8 @@ def fetchProduct(id: int) -> None:
     # Separate JSON into different objects
     category = product.pop("category")
     dimensions = product.pop("dimensions")
-    meta = product.pop("meta")
+    meta:dict = product.pop("meta")
+    qrCode = meta.pop("qrCode")
     tags = product.pop("tags")
     reviews = product.pop("reviews")
     images = product.pop("images")
@@ -77,6 +79,11 @@ def fetchProduct(id: int) -> None:
     metaObj = models.Meta(**meta)
     metaObj.save()
     metaObj = models.Meta.objects.all().last()
+
+    # QrCode
+    qrCodeObj = models.QrCode(url = qrCode, meta=metaObj)
+    qrCodeObj.save()
+
 
     # Dimensions
     dimensionsObj = models.Dimensions(**dimensions)
