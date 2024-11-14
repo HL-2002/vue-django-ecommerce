@@ -1,40 +1,62 @@
 <script setup lang="ts">
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net-dt'
+import LenguageSpanish from 'datatables.net-plugins/i18n/es-MX.json'
+import { computed, onMounted, ref, watchEffect } from 'vue';
+import type { Product } from '@/types/types';
+import { getProducts } from '@/services/products';
 
+const products = ref<Product[]>()
+const table = ref()
 DataTable.use(DataTablesCore);
 
-
 const columns = [
-  {
-    title: 'Title',
-    data: 'title',
-  },
-  {
-    title: 'Price',
-    data: 'price',
-  },
-]
-const defaultData = Array.from({ length: 100 }, (_, i) => ({
-  title: `Title ${i}`,
-  price: Math.random() * 1000,
-}))
+  { data: 'id', title: 'ID' },
+  { data: 'title', title: 'Título' },
+  { data: 'description', title: 'Descripción' },
+  { data: 'price', title: 'Precio' },
+  { data: 'discountPercentage', title: 'Descuento (%)' },
+  { data: 'rating', title: 'Calificación' },
+  { data: 'stock', title: 'Stock' },
+  { data: 'brand', title: 'Marca' },
+  { data: 'sku', title: 'SKU' },
+  { data: 'weight', title: 'Peso' },
+  { data: 'warrantyInformation', title: 'Información de Garantía' },
+  { data: 'shippingInformation', title: 'Información de Envío' },
+  { data: 'availabilityStatus', title: 'Estado de Disponibilidad' },
+  { data: 'returnPolicy', title: 'Política de Devolución' },
+  { data: 'minimumOrderQuantity', title: 'Cantidad Mínima de Pedido' },
+  { data: 'category', title: 'Categoría' },
+  { data: 'dimensions', title: 'Dimensiones' },
+  { data: 'meta', title: 'Meta' },
+  { data: 'tags', title: 'Etiquetas' }
+];
 
-
+onMounted(() => {
+  getProducts().then(data => {
+    products.value = data
+  })
+})
 
 </script>
 <template>
   <main>
     <h1 class="text-center text-6xl">Pagina principal</h1>
     <p>aqui tal vez va algo mas</p>
+    <div class="text-sm">
+      <DataTable ref="table" class="cell-border hover stripe row-border order-column compact" :columns="columns"
+        :data="products" :options="{ language: LenguageSpanish }">
 
-    <DataTable :columns="columns" :data="defaultData">
+      </DataTable>
+
+    </div>
 
 
-    </DataTable>
   </main>
+
+
 </template>
 
 <style>
-@import 'datatables.net-dt';
+@import 'datatables.net-dt'
 </style>
