@@ -1,12 +1,12 @@
-<script setup lang="ts" >
+<script setup lang="ts">
 
 import { ref } from 'vue';
 
 // defini chamge miniature
-const emit = defineEmits(['changeMiniature','errorMaxFiles'])
+const emit = defineEmits(['changeMiniature', 'errorMaxFiles'])
 
 const files = ref<File[]>([])
-const images = ref<string[]>([])
+const images = ref<{ id: string, url: string }[]>([])
 
 function onFileChange(event: Event) {
   const target = event.target as HTMLInputElement
@@ -18,16 +18,16 @@ function onFileChange(event: Event) {
     }
 
     files.value = Array.from(filesList)
-    const urls = files.value.map((file) => URL.createObjectURL(file))
-    console.log(urls)
-    images.value = urls
+    images.value = files.value.map((file) => { return { id: file.name, url: URL.createObjectURL(file) } })
+
   }
 }
 
 
-  function clickImage(image: string) {
-    emit('changeMiniature', image)
-  }
+function clickImage(image: { id: string, url: string }) {
+  console.log(image.url)
+  emit('changeMiniature', image)
+}
 
 
 
@@ -38,19 +38,16 @@ function onFileChange(event: Event) {
 
 
 <template>
-<!-- make style button -->
-<label class="px-2 py-1 text-white rounded text-lg bg-blue-500 cursor-pointer">
-      Subir imagenes
-      <input
-      accept="image/*"
-      multiple
-      @change="onFileChange" type="file" name="images" class="hidden absolute pointer-events-none" />
-</label>
+  <!-- make style button -->
+  <label class="px-2 py-1 text-white rounded text-lg bg-blue-500 cursor-pointer">
+    Subir imagenes
+    <input accept="image/*" multiple @change="onFileChange" type="file" name="images"
+      class="hidden absolute pointer-events-none" />
+  </label>
 
-<div class="flex gap-4 border border-neutral-500 p-2 h-28">
-  <img v-for="image in images" :src="image" :key="image" class="w-24 h-24 object-cover"
-  @click="clickImage(image)"
-  />
-</div>
+  <div class="flex gap-4 border border-neutral-500 p-2 h-28">
+    <img v-for="image in images" :src="image.url" :key="image.id" class="w-24 h-24 object-cover"
+      @click="clickImage(image)" />
+  </div>
 
 </template>
