@@ -13,7 +13,7 @@ class Category(models.Model):
         ]
 
     def __str__(self):
-        return json.dumps({"name": self.name}, indent=4)
+        return self.name
 
 
 class Meta(models.Model):
@@ -32,11 +32,11 @@ class Meta(models.Model):
             indent=4,
             default=str,
         )
-    
-class QrCode(models.Model):
-    meta = models.OneToOneField(Meta, related_name='qrCode',on_delete=models.CASCADE)
-    url = models.ImageField(upload_to="qr/")
 
+
+class QrCode(models.Model):
+    meta = models.OneToOneField(Meta, related_name="qrCode", on_delete=models.CASCADE)
+    url = models.ImageField(upload_to="qr/")
 
 
 class Dimensions(models.Model):
@@ -62,7 +62,7 @@ class Tag(models.Model):
         constraints = [models.UniqueConstraint(fields=["name"], name="unique_tag_name")]
 
     def __str__(self):
-        return json.dumps({"name": self.name}, indent=4)
+        return self.name
 
 
 class Product(models.Model):

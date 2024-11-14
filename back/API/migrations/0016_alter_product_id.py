@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('API', '0015_alter_image_product_alter_review_product'),
+        ("API", "0015_alter_image_product_alter_review_product"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='product',
-            name='id',
+            model_name="product",
+            name="id",
             field=models.BigAutoField(primary_key=True, serialize=False),
         ),
     ]

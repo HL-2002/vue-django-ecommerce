@@ -5,20 +5,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('API', '0014_alter_category_id_alter_dimensions_id_alter_image_id_and_more'),
+        ("API", "0014_alter_category_id_alter_dimensions_id_alter_image_id_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='image',
-            name='product',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='API.product'),
+            model_name="image",
+            name="product",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="images",
+                to="API.product",
+            ),
         ),
         migrations.AlterField(
-            model_name='review',
-            name='product',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reviews', to='API.product'),
+            model_name="review",
+            name="product",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="reviews",
+                to="API.product",
+            ),
         ),
     ]

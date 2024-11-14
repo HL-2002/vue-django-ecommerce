@@ -17,7 +17,7 @@ class DimensionsViewSet(viewsets.ModelViewSet):
 
 class MetaViewSet(viewsets.ModelViewSet):
     queryset = Meta.objects.prefetch_related("qrCode").all()
-    
+
     def get_serializer_class(self):
         if self.request.method == "GET":
             return MetaReadSerializer
@@ -27,6 +27,7 @@ class MetaViewSet(viewsets.ModelViewSet):
 class QrCodeViewSet(viewsets.ModelViewSet):
     queryset = QrCode.objects.all()
     serializer_class = QrCodeSerializer
+
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
