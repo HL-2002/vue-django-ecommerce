@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Category } from '@/types/types';
 import { ref, computed } from 'vue';
 
 const props = defineProps({
@@ -11,7 +12,7 @@ const props = defineProps({
     required: true
   },
   defaultWhitelist: {
-    type: Array as () => string[],
+    type: Array as () => Category[],
     required: true
   }
 
@@ -20,7 +21,7 @@ const props = defineProps({
 
 const textInput = ref('')
 const inputRef = ref<HTMLInputElement | null>(null)
-const whiteList = ref<string[]>(props.defaultWhitelist)
+const whiteList = ref<Category[]>(props.defaultWhitelist)
 const dialogRef = ref<HTMLDialogElement | null>(null)
 
 const seletedCategories = defineModel<string[]>({
