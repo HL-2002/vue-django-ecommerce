@@ -4,7 +4,7 @@ import NotificationDialog from './components/NotificationDialog.vue'
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-800 text-white">
+  <div class="">
     <header class="flex justify-between items-center p-4 shadow-md">
       <div class="flex gap-6">
         <RouterLink to="/" class="hover:text-gray-400">Home</RouterLink>

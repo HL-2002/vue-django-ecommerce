@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import type { Product } from '@/types/types';
 import { API_URL } from '@/services/products';
+import { useNotificationStore } from '@/stores/notification';
 
 const route = useRoute();
 const product = ref<Product | null>(null);
 const error = ref<string | null>(null);
 const mainImage = ref<string>("");
+
+const {notify} = useNotificationStore()
+const router = useRouter()
 
 const fetchProduct = async () => {
   try {
@@ -24,6 +28,25 @@ const updateMainImage = (url: string) => {
   mainImage.value = url;
 };
 
+async function deleteProduct(){
+  const res = await fetch(`${API_URL}/API/product/${route.params.id}/`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (res.ok) {
+    notify({
+      message: 'El producto ha sido eliminado correctamente',
+      type: 'success',
+    })
+    router.push('/')
+  } else {
+    alert('Error al eliminar el producto');
+  }
+}
+
 onMounted(fetchProduct);
 </script>
 
@@ -34,7 +57,7 @@ onMounted(fetchProduct);
     <div v-else class="max-w-6xl mx-auto bg-gray-800 text-white shadow-xl rounded-xl overflow-hidden">
       <div class="flex flex-col md:flex-row">
         <div class="md:w-1/2 p-6 bg-gray-700">
-          <img :src="mainImage" alt="Imagen del Producto" class="w-full h-96 object-contain   rounded-lg shadow-md">
+          <img :src="mainImage" alt="Imagen del Producto" class="w-full h-96 object-contain rounded-lg shadow-md">
           <div class="flex flex-wrap mt-4">
             <img v-for="image in product.images" :key="image.url" :src="image.url" alt="Imagen del Producto"
               class="w-20 h-20 object-cover m-1 border border-gray-500 rounded-lg transition-transform transform hover:scale-105 cursor-pointer"
@@ -68,8 +91,22 @@ onMounted(fetchProduct);
             <div><span class="text-gray-300 font-medium">Calificación:</span> {{ product.rating }}</div>
             <div><span class="text-gray-300 font-medium">Etiquetas:</span> {{ product.tags.join(', ') }}</div>
           </div>
+          <button @click="deleteProduct" class="mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+            Eliminar Producto
+          </button>
         </div>
       </div>
+    </div>
+  </div>
+  <div v-if="product && product.reviews.length" class="mt-6 mx-4 md:mx-8 lg:mx-12">
+    <h2 class="text-2xl font-bold mb-4">Reseñas</h2>
+    <div v-for="review in product.reviews" :key="review.reviewerEmail" class="bg-gray-700 p-4 rounded-lg mb-4">
+      <div class="flex items-center mb-2">
+        <span class="text-yellow-400 font-bold">{{ review.rating }} / 5</span>
+        <span class="ml-2 text-gray-400">por {{ review.reviewerName }}</span>
+      </div>
+      <p class="text-gray-300">{{ review.comment }}</p>
+      <span class="text-gray-500 text-sm">{{ new Date(review.date).toLocaleDateString() }}</span>
     </div>
   </div>
 </template>
