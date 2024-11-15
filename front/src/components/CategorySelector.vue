@@ -226,8 +226,8 @@ const filteredList = computed(() => {
   position: relative;
   left: 0px;
   width: 100%;
-  border: 1px solid darkblue;
-  background: white;
+  border: 1px solid #1e3a8a;
+  background: #1f2937;
 
   ul {
     list-style: none;
@@ -240,9 +240,10 @@ const filteredList = computed(() => {
 
     li {
       button {
-        background-color: #ddd;
+        background-color: #374151;
+        color: white;
         padding: 5px 5px;
-        border: 1px solid gray;
+        border: 1px solid #4b5563;
         width: 100%;
         height: 100%;
         font-size: inherit;
@@ -250,7 +251,7 @@ const filteredList = computed(() => {
 
         &:focus-visible,
         &:hover {
-          background-color: #bbb;
+          background-color: #4b5563;
           outline: none;
           transform: scale(1.1);
         }
@@ -279,17 +280,18 @@ input {
   gap: 7px;
   position: relative;
   flex-wrap: wrap;
-  background-color: white;
+  background-color: #1f2937;
 
   .tag {
-    background-color: lightskyblue;
+    background-color: #3b82f6;
+    color: white;
     padding: 2px 4px;
     border-radius: 2px;
 
     transition: all 0.100s ease;
 
     &:hover {
-      background-color: lightblue;
+      background-color: #60a5fa;
       transform: scale(1.1);
     }
 
@@ -313,6 +315,7 @@ input {
   line-height: normal;
   padding: 2px 4px;
   height: 26px;
+  color: white;
 }
 
 
@@ -320,5 +323,6 @@ input:focus+label .input::after {
   content: "|";
   font-size: 16px;
   animation: inputA 1s infinite ease-in-out;
+  color: white;
 }
 </style>

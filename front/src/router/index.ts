@@ -19,8 +19,11 @@ const router = createRouter({
       path: '/form/reviews',
       name: 'form review',
       component: ReviewFromView  ,
-
-
+    },
+    {
+      path: '/product/:id',
+      name: 'product',
+      component: () => import('../views/ProductView.vue')
     }
   ],
 })

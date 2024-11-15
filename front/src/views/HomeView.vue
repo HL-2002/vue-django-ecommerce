@@ -6,6 +6,10 @@ import { onMounted, ref } from 'vue';
 import type { Product } from '@/types/types';
 import { getProducts } from '@/services/products';
 
+import { useRouter } from 'vue-router';
+
+const router = useRouter()
+
 const products = ref<Product[]>()
 const table = ref()
 DataTable.use(DataTablesCore);
@@ -21,17 +25,24 @@ onMounted(() => {
   getProducts().then(data => {
     products.value = data
   })
+
+  const dt = table.value.dt
+  dt.on('click', 'tr', function (this: HTMLElement) {
+    const data = dt.row(this).data()
+
+    router.push({ name: 'product', params: { id: data.id } })
+
+  })
+
+
 })
 
 </script>
 <template>
   <main>
-    <h1 class="text-center text-6xl">Pagina principal</h1>
-    <p>aqui tal vez va algo mas</p>
-    <div class="text-sm">
+    <div class="text-sm p-10">
       <DataTable ref="table" class="cell-border hover stripe row-border order-column compact" :columns="columns"
         :data="products" :options="{ language: LenguageSpanish }">
-
       </DataTable>
 
     </div>

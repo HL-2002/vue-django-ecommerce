@@ -53,7 +53,7 @@ export async function getProducts() : Promise<Product[]> {
 }
 
 
-export  async function createProduct(product ): Promise<void> {
+export  async function createProduct(product:FormData): Promise<void> {
   //por ahora esta logica no existe falta esa parte del back
   console.log("enviando al back",product);
 

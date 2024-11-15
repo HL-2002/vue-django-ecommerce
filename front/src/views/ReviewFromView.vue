@@ -3,5 +3,7 @@ import ReviewForm from '@/components/ReviewForm.vue';
 </script>
 
 <template>
-  <ReviewForm />
+  <div class="p-6">
+    <ReviewForm />
+  </div>
 </template>

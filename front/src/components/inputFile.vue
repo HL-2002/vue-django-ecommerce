@@ -8,6 +8,7 @@ const emit = defineEmits(['changeMiniature', 'errorMaxFiles'])
 const files = ref<File[]>([])
 const images = ref<{ id: string, url: string }[]>([])
 
+
 function onFileChange(event: Event) {
   const target = event.target as HTMLInputElement
   const filesList = target.files
