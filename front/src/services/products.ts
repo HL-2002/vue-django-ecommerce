@@ -1,4 +1,4 @@
-import type { Category, Product, SimplifiedProduct } from "@/types/types";
+import type { Category, Product, Review, SimplifiedProduct } from "@/types/types";
 
 export const API_URL = "http://localhost:8000";
 
@@ -57,4 +57,14 @@ export  async function createProduct(product ): Promise<void> {
   //por ahora esta logica no existe falta esa parte del back
   console.log("enviando al back",product);
 
+}
+
+
+export async function CreateReview(FormData:FormData): Promise<void> {
+  //por ahora esta logica no existe falta esa parte del back
+ const response = await fetch(`${API_URL}/API/review/`, {
+    method: "POST",
+    body:FormData,
+  });
+  return response.json();
 }

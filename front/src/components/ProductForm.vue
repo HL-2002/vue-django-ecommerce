@@ -136,17 +136,57 @@ async function submitForm(event: Event) {
   formData.append("meta.barcode", formData.get("barcode") as string)
 
 
-  fetch(`${API_URL}/API/product/`, {
-    method: 'POST',
-    body: formData
-  })
-    .then(response => response.json())
-    .then((data: Product) => {
-      console.log(data)
+  try {
+    let response = await fetch(`${API_URL}/API/product/`, {
+      method: 'POST',
+      body: formData
+    });
+    const data: Product = await response.json();
+    const url = `${window.location.origin}/product/${data.id}`
+
+    const divElement = document.createElement('div')
+    new QRCode(divElement, url)
+     let canvas = divElement.getElementsByTagName("canvas")
+    // from canvas to blob
+    const qrCodeFile = await new Promise((resolve,reject) => {
+      canvas[0].toBlob((blob) => {
+        if (blob) {
+          resolve(new File([blob], 'qrCode.png'))
+        } else {
+          reject(new Error('Failed to create QR code blob'))
+        }
+      })
     })
-    .catch(err => {
-      console.log(err)
+
+
+
+
+
+
+    const qrCodeForm = new FormData()
+    qrCodeForm.append('meta', data.meta.id.toString())
+    qrCodeForm.append('url', qrCodeFile as File)
+
+
+
+    response = await fetch(`${API_URL}/API/qrCode/`, {
+      method: 'POST',
+      body:qrCodeForm
     })
+    if (response.ok) {
+      notify({
+        message: 'Producto creado',
+        type: 'success'
+      })
+    }
+
+
+
+
+
+  } catch (err) {
+    console.log(err);
+  }
 
 }
 

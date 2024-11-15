@@ -13,23 +13,8 @@ DataTable.use(DataTablesCore);
 const columns = [
   { data: 'id', title: 'ID' },
   { data: 'title', title: 'Título' },
-  { data: 'description', title: 'Descripción' },
   { data: 'price', title: 'Precio' },
-  { data: 'discountPercentage', title: 'Descuento (%)' },
-  { data: 'rating', title: 'Calificación' },
-  { data: 'stock', title: 'Stock' },
-  { data: 'brand', title: 'Marca' },
-  { data: 'sku', title: 'SKU' },
-  { data: 'weight', title: 'Peso' },
-  { data: 'warrantyInformation', title: 'Información de Garantía' },
-  { data: 'shippingInformation', title: 'Información de Envío' },
-  { data: 'availabilityStatus', title: 'Estado de Disponibilidad' },
-  { data: 'returnPolicy', title: 'Política de Devolución' },
-  { data: 'minimumOrderQuantity', title: 'Cantidad Mínima de Pedido' },
   { data: 'category', title: 'Categoría' },
-  { data: 'dimensions', title: 'Dimensiones' },
-  { data: 'meta', title: 'Meta' },
-  { data: 'tags', title: 'Etiquetas' }
 ];
 
 onMounted(() => {

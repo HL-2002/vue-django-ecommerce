@@ -30,8 +30,9 @@ export type Dimensions = {
 }
 
 export type Meta = {
-  createdAt: Date;
-  updatedAt: Date;
+  id:number
+  createdAt: string;
+  updatedAt: string;
   barcode:   string;
   qrCode:    string;
 }
