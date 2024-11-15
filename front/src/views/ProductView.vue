@@ -34,7 +34,7 @@ onMounted(fetchProduct);
     <div v-else class="max-w-6xl mx-auto bg-gray-800 text-white shadow-xl rounded-xl overflow-hidden">
       <div class="flex flex-col md:flex-row">
         <div class="md:w-1/2 p-6 bg-gray-700">
-          <img :src="mainImage" alt="Imagen del Producto" class="w-full h-96 object-fill rounded-lg shadow-md">
+          <img :src="mainImage" alt="Imagen del Producto" class="w-full h-96 object-contain   rounded-lg shadow-md">
           <div class="flex flex-wrap mt-4">
             <img v-for="image in product.images" :key="image.url" :src="image.url" alt="Imagen del Producto"
               class="w-20 h-20 object-cover m-1 border border-gray-500 rounded-lg transition-transform transform hover:scale-105 cursor-pointer"

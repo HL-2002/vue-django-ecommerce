@@ -77,7 +77,15 @@ onMounted(() => {
 async function submitForm(event: Event) {
   const formData = new FormData(event.target as HTMLFormElement)
   const images: File[] = formData.getAll('images') as File[]
+  // set image in formData,how image.url
+  formData.delete('images')
 
+  images.forEach((image, index) => {
+    formData.append(`images`, image)
+  })
+
+
+  console.log(images)
   if (images.length < 3) {
     notify({
       message: 'Se requieren al menos 3 imagenes',
@@ -120,7 +128,12 @@ async function submitForm(event: Event) {
   formData.append("meta", formData.get("barcode") as string)
   formData.append("meta.barcode", formData.get("barcode") as string)
 
-  formData.delete('images')
+  // comprueba que el formData si tenga las imagenes
+  for (let [key, value] of formData.entries()) {
+    console.log(key, value)
+  }
+
+
   try {
     let response = await fetch(`${API_URL}/API/product/`, {
       method: 'POST',
