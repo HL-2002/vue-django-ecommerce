@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter ,RouterLink} from 'vue-router';
 import type { Product } from '@/types/types';
 import { API_URL } from '@/services/products';
 import { useNotificationStore } from '@/stores/notification';
@@ -47,6 +47,10 @@ async function deleteProduct(){
   }
 }
 
+
+
+
+
 onMounted(fetchProduct);
 </script>
 
@@ -77,7 +81,7 @@ onMounted(fetchProduct);
             </span>
           </div>
           <div class="space-y-2">
-            <div><span class="text-gray-300 font-medium">Categoría:</span> {{ product.category }}</div>
+            <div><span class="text-gray-300 font-medium">Categoría:</span> {{ product.category.name }}</div>
             <div><span class="text-gray-300 font-medium">Stock:</span> {{ product.stock }}</div>
             <div><span class="text-gray-300 font-medium">Marca:</span> {{ product.brand }}</div>
             <div><span class="text-gray-300 font-medium">SKU:</span> {{ product.sku }}</div>
@@ -89,11 +93,17 @@ onMounted(fetchProduct);
             <div><span class="text-gray-300 font-medium">Disponibilidad:</span> {{ product.availabilityStatus }}</div>
             <div><span class="text-gray-300 font-medium">Política de Devolución:</span> {{ product.returnPolicy }}</div>
             <div><span class="text-gray-300 font-medium">Calificación:</span> {{ product.rating }}</div>
-            <div><span class="text-gray-300 font-medium">Etiquetas:</span> {{ product.tags.join(', ') }}</div>
+            <div><span class="text-gray-300 font-medium">Etiquetas:</span> {{ product.tags.map((tag) => tag.name).join(",") }}</div>
           </div>
-          <button @click="deleteProduct" class="mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-            Eliminar Producto
-          </button>
+            <div class="flex gap-4">
+            <button @click="deleteProduct" class="mt-4 bg-red-600 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
+              Eliminar Producto
+            </button>
+            <router-link :to="`/product/${$route.params.id}/edit`"
+            class="mt-4 bg-blue-600 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
+            Editar Producto
+            </router-link>
+        </div>
         </div>
       </div>
     </div>

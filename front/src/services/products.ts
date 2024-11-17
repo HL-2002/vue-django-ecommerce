@@ -52,6 +52,12 @@ export async function getProducts() : Promise<Product[]> {
   return response.json();
 }
 
+export async function getProductById(id: string): Promise<Product> {
+  const response = await fetch(`${API_URL}/API/product/${id}/?format=json`);
+  return response.json();
+}
+
+
 
 export  async function createProduct(product:FormData): Promise<void> {
   //por ahora esta logica no existe falta esa parte del back

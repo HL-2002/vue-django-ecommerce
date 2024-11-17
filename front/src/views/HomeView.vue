@@ -18,7 +18,7 @@ const columns = [
   { data: 'id', title: 'ID' },
   { data: 'title', title: 'Título' },
   { data: 'price', title: 'Precio' },
-  { data: 'category', title: 'Categoría' },
+  { data: 'category.name', title: 'Categoría' },
 ];
 
 onMounted(() => {
