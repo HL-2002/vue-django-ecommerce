@@ -13,7 +13,7 @@ class Category(models.Model):
         ]
 
     def __str__(self):
-        return self.name
+        return  self.name
 
 
 class Meta(models.Model):
