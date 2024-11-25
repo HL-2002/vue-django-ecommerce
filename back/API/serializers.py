@@ -64,7 +64,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = "__all__"
 
-    def create(self, validated_data):
+    def create(self, validated_data:dict):
         # Create and save review object
         review = Review(**validated_data)
         review.save()
@@ -80,6 +80,24 @@ class ReviewSerializer(serializers.ModelSerializer):
         product.save()
 
         return review
+    
+    def update(self, instance, validated_data:dict):
+        # Update the review instance
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Get the product id from the validated data
+        product = Product.objects.get(id=validated_data["product"].id)
+
+        # Get all reviews related to the product
+        reviews = Review.objects.filter(product=product)
+
+        # Average the reviews' ratings and save them in the product
+        product.rating = sum([review.rating for review in reviews]) / len(reviews)
+        product.save()
+
+        return instance
 
 
 class ReviewDisplaySerializer(serializers.ModelSerializer):
