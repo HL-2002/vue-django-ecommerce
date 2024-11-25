@@ -87,10 +87,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
         product = Product.objects.get(id=instance.product.id)
         instance.delete()
 
-        # Get all reviews related to the product
+        # Get all reviews related to the product, average the ratings then save the product
         reviews = Review.objects.filter(product=product)
-
-        # Average the reviews' ratings and save them in the product
         product.rating = sum([review.rating for review in reviews]) / len(reviews)
         product.save()
 
