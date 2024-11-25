@@ -6,6 +6,7 @@ from rest_framework import viewsets
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
 from rest_framework.response import Response
+import os
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -80,15 +81,22 @@ class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Get the product id from the instance
+        product = Product.objects.get(id=instance.product.id)
+        instance.delete()
+
+        # Get all reviews related to the product
+        reviews = Review.objects.filter(product=product)
+
+        # Average the reviews' ratings and save them in the product
+        product.rating = sum([review.rating for review in reviews]) / len(reviews)
+        product.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class ImageViewSet(viewsets.ModelViewSet):
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
-
-
-def get_product_by_id(request: HttpRequest) -> HttpResponse:
-    return HttpResponse("Hello Django!")
-
-
-def post_product(request: HttpRequest) -> HttpResponse:
-    return HttpResponse("Hello Django!")
