@@ -1,66 +1,66 @@
 export type Product = {
-  id:                   number;
-  title:                string;
-  description:          string;
-  category:             Category;
-  price:                number;
-  discountPercentage:   number;
-  rating:               number;
-  stock:                number;
-  tags:                 Tag[];
-  brand:                string;
-  sku:                  string;
-  weight:               number;
-  dimensions:           Dimensions;
-  warrantyInformation:  string;
-  shippingInformation:  string;
-  availabilityStatus:   string;
-  reviews:              Review[];
-  returnPolicy:         string;
+  id: number;
+  title: string;
+  description: string;
+  category: Category;
+  price: number;
+  discountPercentage: number;
+  rating: number;
+  stock: number;
+  tags: Tag[];
+  brand: string;
+  sku: string;
+  weight: number;
+  dimensions: Dimensions;
+  warrantyInformation: string;
+  shippingInformation: string;
+  availabilityStatus: string;
+  reviews: Review[];
+  returnPolicy: string;
   minimumOrderQuantity: number;
-  meta:                 Meta;
-  images:               {url:string}[];
-  thumbnail:            string;
+  meta: Meta;
+  images: { url: string }[];
+  thumbnail: string;
 }
 
 export type Dimensions = {
-  width:  number;
+  width: number;
   height: number;
-  depth:  number;
+  depth: number;
 }
 
 export type Meta = {
-  id:number
+  id: number
   createdAt: string;
   updatedAt: string;
-  barcode:   string;
-  qrCode:    string;
+  barcode: string
+  qrCode: { url: string };
 }
 
 export type Review = {
-  rating:        number;
-  comment:       string;
-  date:          Date;
-  reviewerName:  string;
+  rating: number;
+  comment: string;
+  date: Date;
+  reviewerName: string;
   reviewerEmail: string;
 }
 
 export type Category = {
-  id:   number;
+  id: number;
   name: string;
 }
 
-export type Tag =  Category
+export type Tag = Category
 
 
-export type SimplifiedProduct = Omit<Product, 'meta' | 'reviews'| "id"> & {
+export type SimplifiedProduct = Omit<Product, 'meta' | 'reviews' | "id"> & {
   meta: Omit<Meta, 'createdAt' | 'updatedAt' | 'qrCode'>;
 }
 
-export type NotificationType =  'error' | 'success';
+export type NotificationType = 'error' | 'success';
 
 
 export type NotificationSooner = {
   message: string;
-  type:  NotificationType
+  type: NotificationType
 }

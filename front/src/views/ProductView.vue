@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRoute, useRouter ,RouterLink} from 'vue-router';
+import { ref, onMounted, onUpdated } from 'vue';
+import { useRoute, useRouter, RouterLink } from 'vue-router';
 import type { Product } from '@/types/types';
 import { API_URL } from '@/services/products';
 import { useNotificationStore } from '@/stores/notification';
+import JsBarcode from 'jsbarcode';
 
 const route = useRoute();
 const product = ref<Product | null>(null);
 const error = ref<string | null>(null);
 const mainImage = ref<string>("");
+const refcanvas = ref<HTMLCanvasElement | null>(null);
 
-const {notify} = useNotificationStore()
+const { notify } = useNotificationStore()
 const router = useRouter()
 
 const fetchProduct = async () => {
@@ -28,7 +30,7 @@ const updateMainImage = (url: string) => {
   mainImage.value = url;
 };
 
-async function deleteProduct(){
+async function deleteProduct() {
   const res = await fetch(`${API_URL}/API/product/${route.params.id}/`, {
     method: 'DELETE',
     headers: {
@@ -47,11 +49,22 @@ async function deleteProduct(){
   }
 }
 
-
+onUpdated(() => {
+  if (product.value) {
+    JsBarcode("#barcode", product.value.meta.barcode, {
+      format: 'CODE128',
+      displayValue: true,
+      fontSize: 20,
+      width: 2,
+      height: 60,
+    });
+  }
+})
 
 
 
 onMounted(fetchProduct);
+
 </script>
 
 <template>
@@ -93,17 +106,25 @@ onMounted(fetchProduct);
             <div><span class="text-gray-300 font-medium">Disponibilidad:</span> {{ product.availabilityStatus }}</div>
             <div><span class="text-gray-300 font-medium">Política de Devolución:</span> {{ product.returnPolicy }}</div>
             <div><span class="text-gray-300 font-medium">Calificación:</span> {{ product.rating }}</div>
-            <div><span class="text-gray-300 font-medium">Etiquetas:</span> {{ product.tags.map((tag) => tag.name).join(",") }}</div>
+            <div><span class="text-gray-300 font-medium">Etiquetas:</span> {{ product.tags.map((tag) =>
+              tag.name).join(",") }}</div>
+            <div class="flex gap-2">
+
+              <svg id="barcode" ref="refcanvas" />
+              <img :src="product.meta.qrCode.url" width="150" height="150" alt="qrcode product" class="p-2 bg-white">
+
+            </div>
           </div>
-            <div class="flex gap-4">
-            <button @click="deleteProduct" class="mt-4 bg-red-600 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
+          <div class="flex gap-4">
+            <button @click="deleteProduct"
+              class="mt-4 bg-red-600 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
               Eliminar Producto
             </button>
             <router-link :to="`/product/${$route.params.id}/edit`"
-            class="mt-4 bg-blue-600 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
-            Editar Producto
+              class="mt-4 bg-blue-600 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105">
+              Editar Producto
             </router-link>
-        </div>
+          </div>
         </div>
       </div>
     </div>

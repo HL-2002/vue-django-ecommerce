@@ -209,7 +209,7 @@ async function submitForm(event: Event) {
   formData.append("meta.barcode", formData.get("barcode") as string)
 
   // comprueba que el formData si tenga las imagenes
-  for (let [key, value] of formData.entries()) {
+  for (const [key, value] of formData.entries()) {
     console.log(key, value)
   }
 
@@ -242,13 +242,13 @@ async function submitForm(event: Event) {
       new QRCode(divElement, url)
       const canvas = divElement.getElementsByTagName("canvas")
       const qrCodeFile = await new Promise((resolve, reject) => {
-      canvas[0].toBlob((blob) => {
-        if (blob) {
-        resolve(new File([blob], 'qrCode.png'))
-        } else {
-        reject(new Error('Failed to create QR code blob'))
-        }
-      })
+        canvas[0].toBlob((blob) => {
+          if (blob) {
+            resolve(new File([blob], 'qrCode.png'))
+          } else {
+            reject(new Error('Failed to create QR code blob'))
+          }
+        })
       })
 
       const qrCodeForm = new FormData()
@@ -256,15 +256,15 @@ async function submitForm(event: Event) {
       qrCodeForm.append('url', qrCodeFile as File)
 
       response = await fetch(`${API_URL}/API/qrCode/`, {
-      method: 'POST',
-      body: qrCodeForm
+        method: 'POST',
+        body: qrCodeForm
       })
     }
 
     if (response.ok) {
       notify({
-      message: props.productId ? 'Producto actualizado' : 'Producto creado',
-      type: 'success'
+        message: props.productId ? 'Producto actualizado' : 'Producto creado',
+        type: 'success'
       })
     }
   } catch (err) {
@@ -288,8 +288,8 @@ function throwNotification() {
   <form enctype="multipart/form-data" @submit.prevent="submitForm"
     class="w-full max-w-2xl mx-auto flex flex-col gap-4 bg-gray-800 p-6 rounded-lg shadow-md mb-4 text-white mt-4">
     <h1 @click="throwNotification" class="text-2xl font-bold text-center mb-4">{{
-    props.productId ? 'Editar Producto' : 'Crear Producto'
-    }}</h1>
+      props.productId ? 'Editar Producto' : 'Crear Producto'
+      }}</h1>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Titulo
       <input v-model="formData.title" required type="text" name="title"
@@ -397,11 +397,10 @@ function throwNotification() {
     </label>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Codigo de barras
-      <input v-model="formData.barcode" required type="text" name="barcode"
+      <input v-model="formData.barcode" required type="number" name="barcode"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800 bg-gray-700 text-white" />
     </label>
-    <button type="submit"
-      class="p-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors">
+    <button type="submit" class="p-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors">
       {{ props.productId ? 'Editar Producto' : 'Crear Producto' }}
     </button>
   </form>
