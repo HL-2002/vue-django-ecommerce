@@ -1,6 +1,6 @@
-import type { Category, Product, SimplifiedProduct } from "@/types/types";
+import type { Category, Product, Review, SimplifiedProduct } from "@/types/types";
 
-const API_URL = "http://localhost:8000";
+export const API_URL = "http://localhost:8000";
 
 
 export  async function getCategories(): Promise<{
@@ -52,9 +52,25 @@ export async function getProducts() : Promise<Product[]> {
   return response.json();
 }
 
+export async function getProductById(id: string): Promise<Product> {
+  const response = await fetch(`${API_URL}/API/product/${id}/?format=json`);
+  return response.json();
+}
 
-export  async function createProduct(product: SimplifiedProduct): Promise<void> {
+
+
+export  async function createProduct(product:FormData): Promise<void> {
   //por ahora esta logica no existe falta esa parte del back
   console.log("enviando al back",product);
 
+}
+
+
+export async function CreateReview(FormData:FormData): Promise<void> {
+  //por ahora esta logica no existe falta esa parte del back
+ const response = await fetch(`${API_URL}/API/review/`, {
+    method: "POST",
+    body:FormData,
+  });
+  return response.json();
 }

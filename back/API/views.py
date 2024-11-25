@@ -3,7 +3,9 @@ from django.http import HttpResponse, HttpRequest
 from API.serializers import *
 from API.models import *
 from rest_framework import viewsets
-
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import status
+from rest_framework.response import Response
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -35,12 +37,43 @@ class TagViewSet(viewsets.ModelViewSet):
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.prefetch_related("reviews", "images").all()
+    queryset = Product.objects.all()
 
     def get_serializer_class(self):
         if self.request.method == "GET":
             return ProductReadSerializer
         return ProductSerializer
+    parser_classes = (MultiPartParser, FormParser)
+    def create(self, request, *args, **kwargs):
+        
+        files = []
+        images_files = request.FILES.getlist("images")
+        for value in images_files:
+            files.append({"url": value})
+
+        request_data = request.data.copy()
+        request_data.pop("images", None)
+
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(images=files)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    def update(self, request, *args, **kwargs):
+            partial = kwargs.pop('partial', False)
+            instance = self.get_object()
+            files = []
+            images_files = request.FILES.getlist("images")
+            for value in images_files:
+                files.append({"url": value})
+
+            request_data = request.data.copy()
+            request_data.pop("images", None)
+            serializer = self.get_serializer(instance, data=request_data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(images=files)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

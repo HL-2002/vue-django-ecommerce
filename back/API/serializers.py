@@ -1,5 +1,6 @@
 from API.models import *
 from rest_framework import serializers
+from rest_framework.fields import ImageField
 
 
 """
@@ -88,9 +89,11 @@ class ReviewDisplaySerializer(serializers.ModelSerializer):
 
 
 class ImageSerializer(serializers.ModelSerializer):
+    url = serializers.ImageField()
     class Meta:
         model = Image
-        fields = "__all__"
+        fields = ["url"]
+        read_only_fields = ["product"]
 
 
 class ImageDisplaySerializer(serializers.ModelSerializer):
@@ -103,6 +106,7 @@ class ProductSerializer(serializers.ModelSerializer):
     dimensions = DimensionsSerializer()
     meta = MetaSerializer()
     tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
+    images = ImageSerializer(many=True, required=False)
     class Meta:
         model = Product
         fields = "__all__"
@@ -112,32 +116,57 @@ class ProductSerializer(serializers.ModelSerializer):
         dimensions_data = validated_data.pop("dimensions")
         meta_data = validated_data.pop("meta")
         tags_data = validated_data.pop("tags")
-        
+        images_data = validated_data.pop("images",[])
         
         # Create the nested dimensions object first
         dimensions = Dimensions.objects.create(**dimensions_data)
 
         # # Create the nested meta object and initialize the createAt and updatedAt fields
         meta = Meta.objects.create(**meta_data)
-
-
-
+        # create product
         product = Product.objects.create(dimensions=dimensions,meta=meta, **validated_data)
         product.tags.set(tags_data)
+       
+        for image_data in images_data:
+            Image.objects.create(product=product, **image_data)     
         return product
-    def update(self,instance,validated_data):
-        meta_data = validated_data.pop("meta",None)
-        if meta_data:
-            meta_serializer = self.fields['meta']
-            meta_instance = instance.meta
-            meta_serializer.update(meta_instance,meta_data)
+    def update(self, instance, validated_data):
+        dimensions_data = validated_data.pop("dimensions")
+        meta_data = validated_data.pop("meta")
+        tags_data = validated_data.pop("tags")
+        images_data = validated_data.pop("images", [])
+
+        # Update the nested dimensions object
+        for attr, value in dimensions_data.items():
+            setattr(instance.dimensions, attr, value)
+        instance.dimensions.save()
+
+        # Update the nested meta object
+        for attr, value in meta_data.items():
+            setattr(instance.meta, attr, value)
+        instance.meta.save()
+
+        # Update the product instance
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Update tags
+        instance.tags.set(tags_data)
+
+        # Update images
+        instance.images.all().delete()
+        for image_data in images_data:
+            Image.objects.create(product=instance, **image_data)
+        return instance
+
 
 
 class ProductReadSerializer(serializers.ModelSerializer):
-    category = serializers.StringRelatedField()
+    category = CategorySerializer()
     meta = MetaReadSerializer()
     dimensions = DimensionsSerializer()
-    tags = serializers.StringRelatedField(many=True)
+    tags = TagSerializer(many=True, read_only=True)
     reviews = ReviewDisplaySerializer(many=True, read_only=True, required=False)
     images = ImageDisplaySerializer(many=True, read_only=True, required=False)
 

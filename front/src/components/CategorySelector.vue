@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { createCategory, createTag } from '@/services/products';
 import type { Category } from '@/types/types';
-import { ref, computed, watchEffect, watch } from 'vue';
+import { ref, computed, watchEffect } from 'vue';
 
 const props = defineProps({
   labelName: {
@@ -16,7 +16,7 @@ const props = defineProps({
     type: Array as () => Category[],
     required: true
   },
-  limit :{
+  limit: {
     type: Number
   }
 
@@ -27,11 +27,11 @@ const inputRef = ref<HTMLInputElement | null>(null)
 const whiteList = ref<Category[]>(props.defaultWhitelist)
 const dialogRef = ref<HTMLDialogElement | null>(null)
 
-const seletedCategories = defineModel<string[]>({
+const seletedCategories = defineModel<Category[]>({
   required: true
 })
 
-watchEffect(()=>{
+watchEffect(() => {
   whiteList.value = props.defaultWhitelist
 })
 
@@ -40,7 +40,7 @@ watchEffect(()=>{
 function onKey(event: KeyboardEvent) {
   if (event.key == "Enter" && textInput.value?.trim() !== "") {
     const valueInLowerCase = textInput.value.toLowerCase()
-    if (seletedCategories.value.includes(valueInLowerCase)) {
+    if (seletedCategories.value.some((v) => v.name.toLowerCase() == valueInLowerCase)) {
       textInput.value = ''
       return
     }
@@ -55,7 +55,9 @@ function onKey(event: KeyboardEvent) {
       return
     }
 
-    CreateTagByText(textInput.value)
+    const newCategory = whiteList.value.find((v) => v.name.toLowerCase() == valueInLowerCase)!
+
+    CreateTagByText(newCategory)
 
   }
 
@@ -67,20 +69,20 @@ function onKey(event: KeyboardEvent) {
 }
 
 
-function CreateTagByText(name: string) {
-    if(props.limit !== undefined && props.limit == seletedCategories.value.length){
-      seletedCategories.value.pop()
-    }
+function CreateTagByText(newCategory: Category) {
+  if (props.limit !== undefined && props.limit == seletedCategories.value.length) {
+    seletedCategories.value.pop()
+  }
   textInput.value = ""
-  seletedCategories.value.push(name.toLowerCase())
+  seletedCategories.value.push(newCategory)
 }
 
 
 async function addToWhitelist() {
-  if (props.labelName == "Tags"){
-    createTag({name:textInput.value.toLowerCase()}).then((data)=>{
+  if (props.labelName == "Tags") {
+    createTag({ name: textInput.value.toLowerCase() }).then((data) => {
       whiteList.value.push(data)
-      CreateTagByText(textInput.value)
+      CreateTagByText(data)
     })
     if (dialogRef.value) dialogRef.value.close()
     return
@@ -89,13 +91,13 @@ async function addToWhitelist() {
 
   createCategory({ name: textInput.value.toLowerCase() }).then((data) => {
     whiteList.value.push(data)
-    CreateTagByText(textInput.value)
+    CreateTagByText(data)
     if (dialogRef.value) dialogRef.value.close()
   })
 }
 
-function removeElement(name: string) {
-  seletedCategories.value = seletedCategories.value.filter((v) => !v.includes(name))
+function removeElement(id: number) {
+  seletedCategories.value = seletedCategories.value.filter((v) => v.id !== id)
 }
 
 function DialogNo() {
@@ -110,14 +112,14 @@ function isInWhiteList(name: string) {
 }
 
 function isInCategories(name: string) {
-  return seletedCategories.value.some((v) => v.toLowerCase() == name.toLowerCase())
+  return seletedCategories.value.some((v) => v.name == name)
 }
 
 
 
 const filteredList = computed(() => {
 
-  return whiteList.value.filter( (v) => v.name.toLowerCase().includes(textInput.value.toLowerCase()) && !isInCategories(v.name))
+  return whiteList.value.filter((v) => v.name.toLowerCase().includes(textInput.value.toLowerCase()) && !isInCategories(v.name))
 
 })
 
@@ -133,10 +135,9 @@ const filteredList = computed(() => {
     <label @click="inputRef?.focus()" class="tags" for="tags-input">
 
       <TransitionGroup name="list">
-
-        <span @click="removeElement(word)" class="tag cursor-pointer capitalize" v-for="word in seletedCategories"
-          :key="word">
-          {{ word }}
+        <span @click="removeElement(word.id)" class="tag cursor-pointer capitalize" v-for="word in seletedCategories"
+          :key="word.id">
+          {{ word.name }}
         </span>
         <span class="input" key="input-vall">{{ textInput }}</span>
 
@@ -146,7 +147,7 @@ const filteredList = computed(() => {
     <Transition name="options">
       <div class="options" v-if="filteredList.length > 0">
         <TransitionGroup name="list" tag="ul">
-          <li @click="CreateTagByText(element.name)" v-for="element in filteredList" :key="element.id">
+          <li @click="CreateTagByText(element)" v-for="element in filteredList" :key="element.id">
             <button type="button" class="capitalize">{{ element.name }}</button>
           </li>
         </TransitionGroup>
@@ -225,8 +226,8 @@ const filteredList = computed(() => {
   position: relative;
   left: 0px;
   width: 100%;
-  border: 1px solid darkblue;
-  background: white;
+  border: 1px solid #1e3a8a;
+  background: #1f2937;
 
   ul {
     list-style: none;
@@ -239,9 +240,10 @@ const filteredList = computed(() => {
 
     li {
       button {
-        background-color: #ddd;
+        background-color: #374151;
+        color: white;
         padding: 5px 5px;
-        border: 1px solid gray;
+        border: 1px solid #4b5563;
         width: 100%;
         height: 100%;
         font-size: inherit;
@@ -249,7 +251,7 @@ const filteredList = computed(() => {
 
         &:focus-visible,
         &:hover {
-          background-color: #bbb;
+          background-color: #4b5563;
           outline: none;
           transform: scale(1.1);
         }
@@ -278,17 +280,18 @@ input {
   gap: 7px;
   position: relative;
   flex-wrap: wrap;
-  background-color: white;
+  background-color: #1f2937;
 
   .tag {
-    background-color: lightskyblue;
+    background-color: #3b82f6;
+    color: white;
     padding: 2px 4px;
     border-radius: 2px;
 
     transition: all 0.100s ease;
 
     &:hover {
-      background-color: lightblue;
+      background-color: #60a5fa;
       transform: scale(1.1);
     }
 
@@ -312,6 +315,7 @@ input {
   line-height: normal;
   padding: 2px 4px;
   height: 26px;
+  color: white;
 }
 
 
@@ -319,5 +323,6 @@ input:focus+label .input::after {
   content: "|";
   font-size: 16px;
   animation: inputA 1s infinite ease-in-out;
+  color: white;
 }
 </style>
