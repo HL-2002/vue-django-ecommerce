@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted, watch, watchEffect } from 'vue';
 import CategorySelector from "./CategorySelector.vue"
 import InputFile from './inputFile.vue';
 import { API_URL, getCategories, getTags, getProductById } from '@/services/products';
@@ -21,7 +21,7 @@ const formData = ref({
   description: '',
   price: 0,
   discountPercentage: 0,
-  rating: 5,
+  rating: 0,
   stock: 0,
   brand: '',
   sku: '',
@@ -43,6 +43,7 @@ const images = ref<File[]>([])
 
 
 function updateMiniature(image: { id: string, url: string }) {
+  seletedMiniature.value = image
   seletedMiniature.value = image
 }
 
@@ -70,8 +71,18 @@ function formatTime(date: Date) {
 }
 
 const shippingFormated = computed(() => {
-  if (!shippingDate.value) return ''
-  return formatTime(shippingDate.value)
+  if (!formData.value.shippingInformation) return ''
+  return `Se envia en ${formatTime(new Date(formData.value.shippingInformation))}`
+})
+
+const formattedWarrantyDate = computed(() => {
+  if (!formData.value.warrantyInformation) return ''
+  return `Garantía válida hasta ${formatTime(new Date(formData.value.warrantyInformation))}`
+})
+
+const formattedReturnPolicyDate = computed(() => {
+  if (!formData.value.returnPolicy) return ''
+  return `Devolución válida hasta ${formatTime(new Date(formData.value.returnPolicy))}`
 })
 
 let tomorrow: Date | string = new Date()
@@ -160,9 +171,23 @@ async function submitForm(event: Event) {
   // set image in formData,how image.url
   formData.delete('images')
 
-  images.forEach((image, index) => {
+  images.forEach((image) => {
     formData.append(`images`, image)
   })
+
+  // delete dateinfomartion
+  formData.delete('warrantyInformation')
+  formData.delete('shippingInformation')
+  formData.delete('returnPolicy')
+
+  // send the fomrmated date
+  formData.append('warrantyInformation', formattedWarrantyDate.value)
+  formData.append('shippingInformation', shippingFormated.value)
+  formData.append('returnPolicy', formattedReturnPolicyDate.value)
+
+  // send in stock or low stock
+  formData.append('availabilityStatus', formData.get('stock') as unknown as number >= 10 ? 'inStock' : 'lowStock')
+
 
 
   console.log(images)
@@ -282,6 +307,17 @@ function throwNotification() {
     type: 'success'
   })
 }
+
+
+watchEffect(() => {
+  if (formData.value.stock >= 10) {
+    formData.value.availabilityStatus = 'inStock'
+  } else {
+    formData.value.availabilityStatus = 'lowStock'
+  }
+})
+
+
 </script>
 
 <template>
@@ -289,7 +325,7 @@ function throwNotification() {
     class="w-full max-w-2xl mx-auto flex flex-col gap-4 bg-gray-800 p-6 rounded-lg shadow-md mb-4 text-white mt-4">
     <h1 @click="throwNotification" class="text-2xl font-bold text-center mb-4">{{
       props.productId ? 'Editar Producto' : 'Crear Producto'
-      }}</h1>
+    }}</h1>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Titulo
       <input v-model="formData.title" required type="text" name="title"
@@ -314,8 +350,9 @@ function throwNotification() {
     </label>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Rating
-      <input v-model="formData.rating" required type="number" name="rating"
-        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800 disabled:opacity-50 bg-gray-700 text-white" />
+      <input v-model="formData.rating" required type="number" name="rating" readonly
+        class=" read-only:bg-gray-700/60 read-only:text-white/60
+        text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800 disabled:opacity-50 bg-gray-700 text-white" />
     </label>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Stock
@@ -360,20 +397,23 @@ function throwNotification() {
     </label>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Informacion de garantia
-      <textarea v-model="formData.warrantyInformation" required name="warrantyInformation"
-        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800 bg-gray-700 text-white"></textarea>
+      <input v-model="formData.warrantyInformation" required name="warrantyInformation" type="date" :min="tomorrow"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800 bg-gray-700 text-white" />
+      <span v-if="formData.warrantyInformation && !formattedWarrantyDate.includes('undefined')">
+        {{ formattedWarrantyDate }}
+      </span>
     </label>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Informacion de envio
       <input v-model="formData.shippingInformation" required name="shippingInformation" type="date" :min="tomorrow"
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800 bg-gray-700 text-white" />
-      <span v-if="shippingFormated">
-        Se envia {{ shippingFormated }}
+      <span v-if="formData.shippingInformation && !shippingFormated.includes('undefined')">
+        {{ shippingFormated }}
       </span>
     </label>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Estado de disponibilidad
-      <select v-model="formData.availabilityStatus" required name="availabilityStatus"
+      <select v-model="formData.availabilityStatus" name="availabilityStatus" disabled
         class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800 bg-gray-700 text-white">
         <option value="inStock">en existencia</option>
         <option value="lowStock">Baja cantidad</option>
@@ -381,8 +421,11 @@ function throwNotification() {
     </label>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Politica de devolucion
-      <textarea v-model="formData.returnPolicy" required name="returnPolicy"
-        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800 bg-gray-700 text-white"></textarea>
+      <input v-model="formData.returnPolicy" required name="returnPolicy" type="date" :min="tomorrow"
+        class="text-sm font-normal p-2 border border-neutral-500 rounded focus:outline-none focus:border-neutral-800 bg-gray-700 text-white" />
+      <span v-if="formData.returnPolicy && !formattedReturnPolicyDate.includes('undefined')">
+        {{ formattedReturnPolicyDate }}
+      </span>
     </label>
     <label class="flex flex-col gap-2 text-xl font-bold">
       Cantidad minima de orden
