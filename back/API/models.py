@@ -70,9 +70,9 @@ class Product(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    discountPercentage = models.DecimalField(max_digits=5, decimal_places=2)
-    rating = models.DecimalField(max_digits=4, decimal_places=2)
+    price = models.FloatField()
+    discountPercentage = models.FloatField()
+    rating = models.FloatField()
     stock = models.IntegerField()
     tags = models.ManyToManyField(Tag)
     brand = models.CharField(max_length=100)
@@ -124,7 +124,7 @@ class Review(models.Model):
     product = models.ForeignKey(
         Product, related_name="reviews", on_delete=models.CASCADE
     )
-    rating = models.DecimalField(max_digits=4, decimal_places=2)
+    rating = models.FloatField()
     comment = models.TextField()
     date = models.DateTimeField(null=False)
     reviewerName = models.CharField(max_length=100)
